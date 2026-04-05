@@ -1,0 +1,536 @@
+import React, { useState, useMemo } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import { useWishlist } from "../context/WishlistContext.jsx";
+
+import {
+  BiChevronRight,
+  BiGridAlt,
+  BiListUl,
+  BiChevronDown,
+  BiTransfer,
+  BiHeart,
+  BiShow,
+  BiChevronLeft,
+} from "react-icons/bi";
+
+const Features = () => {
+  const { addToWishlist, isInWishlist } = useWishlist();
+  const [priceRange, setPriceRange] = useState(1500);
+  const [selectedCategory, setSelectedCategory] = useState("Features");
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState("All Brands");
+  const [isBrandOpen, setIsBrandOpen] = useState(false);
+
+  const categories = [
+    { name: "Features", count: 10, active: true },
+    {
+      name: "Computers",
+      count: 8,
+      sub: [
+        { name: "Home Theater", count: 6 },
+        { name: "Hoodies", count: 2 },
+      ],
+    },
+    { name: "Cell Phones", count: 12 },
+    { name: "Uncategorized", count: 0 },
+  ];
+
+  const brands = [
+    "All Brands",
+    "Apple",
+    "Samsung",
+    "GoPro",
+    "Sony",
+    "Logitech",
+    "Beats",
+  ];
+
+  const products = [
+    {
+      id: 1,
+      name: "GoPro Hero 11 Black Action Camera",
+      price: 399.0,
+      oldPrice: 449.0,
+      image: "/product_7.jpg",
+      category: "Features",
+      sale: true,
+      hasOptions: false,
+      color: "black",
+      brand: "GoPro",
+    },
+    {
+      id: 2,
+      name: "Apple AirPods Pro (2nd Generation)",
+      price: 249.0,
+      image: "/airpods.jpg",
+      category: "Features",
+      hasOptions: false,
+      color: "white",
+      brand: "Apple",
+    },
+    {
+      id: 3,
+      name: "Beats Studio3 Wireless Over-Ear Headphones",
+      price: 199.99,
+      oldPrice: 349.95,
+      image: "/product_4.jpg",
+      category: "Features",
+      sale: true,
+      hasOptions: false,
+      color: "blue",
+      brand: "Beats",
+    },
+    {
+      id: 4,
+      name: "Logitech MX Master 3S Wireless Mouse",
+      price: 99.0,
+      image: "/product_3.jpg",
+      category: "Features",
+      hasOptions: false,
+      color: "black",
+      brand: "Logitech",
+    },
+    {
+      id: 5,
+      name: "Sony WH-1000XM5 Noise Canceling Headphones",
+      price: 398.0,
+      image: "/product_12.jpg",
+      category: "Features",
+      hasOptions: false,
+      color: "black",
+      brand: "Sony",
+    },
+    {
+      id: 6,
+      name: "Apple Watch Series 8 GPS 45mm",
+      price: 429.0,
+      image: "/product_5.jpg",
+      category: "Features",
+      hasOptions: false,
+      color: "white",
+      brand: "Apple",
+    },
+  ];
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesCategory =
+        selectedCategory === "All" || product.category === selectedCategory;
+      const matchesPrice = product.price <= priceRange;
+      const matchesColor = !selectedColor || product.color === selectedColor;
+      const matchesBrand =
+        selectedBrand === "All Brands" || product.brand === selectedBrand;
+      return matchesCategory && matchesPrice && matchesColor && matchesBrand;
+    });
+  }, [selectedCategory, priceRange, selectedColor, selectedBrand]);
+
+  return (
+    <div className="bg-white min-h-screen">
+      
+      <div className="container mx-auto px-4 lg:px-10 py-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-extrabold text-[#001e2b]">Features</h1>
+            <p className="text-gray-400 mt-2 text-sm font-medium">
+              Explore our latest and greatest features.
+            </p>
+          </div>
+          <nav className="flex items-center gap-2 text-sm font-medium text-gray-400">
+            <a href="/" className="hover:text-[#001e2b]">
+              Home
+            </a>
+            <BiChevronRight />
+            <a href="#" className="hover:text-[#001e2b]">
+              Products
+            </a>
+            <BiChevronRight />
+            <span className="text-gray-600">Features</span>
+          </nav>
+        </div>
+      </div>
+
+      <div className="container mx-auto px-4 lg:px-10 pb-20">
+        <div className="flex flex-col lg:flex-row gap-12">
+          
+          <aside className="w-full lg:w-[280px] flex-shrink-0 space-y-10">
+            
+            <div>
+              <h3 className="text-[13px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
+                Product Categories
+              </h3>
+              <ul className="space-y-3">
+                {categories.map((cat, idx) => (
+                  <li key={idx} className="group">
+                    <div
+                      onClick={() => setSelectedCategory(cat.name)}
+                      className={`flex items-center justify-between text-[14px] font-bold cursor-pointer transition-colors ${selectedCategory === cat.name ? "text-[#001e2b]" : "text-gray-600 group-hover:text-[#001e2b]"}`}
+                    >
+                      <span>{cat.name}</span>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded-full transition-all ${selectedCategory === cat.name ? "bg-[#001e2b] text-white" : "bg-gray-100 text-gray-400 group-hover:bg-[#001e2b] group-hover:text-white"}`}
+                      >
+                        {cat.count}
+                      </span>
+                    </div>
+                    {cat.sub && (
+                      <ul className="ml-4 mt-3 space-y-3">
+                        {cat.sub.map((sub, sIdx) => (
+                          <li
+                            key={sIdx}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedCategory(sub.name);
+                            }}
+                            className="flex items-center justify-between text-[13px] font-bold text-gray-500 hover:text-[#001e2b] cursor-pointer transition-colors"
+                          >
+                            <span
+                              className={
+                                selectedCategory === sub.name
+                                  ? "text-[#001e2b]"
+                                  : ""
+                              }
+                            >
+                              {sub.name}
+                            </span>
+                            <span
+                              className={`text-[10px] px-2 py-0.5 rounded-full ${selectedCategory === sub.name ? "bg-[#001e2b] text-white" : "bg-gray-100 text-gray-400"}`}
+                            >
+                              {sub.count}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </li>
+                ))}
+                <li
+                  onClick={() => setSelectedCategory("All")}
+                  className={`text-[14px] font-bold cursor-pointer transition-colors pt-2 border-t border-gray-50 ${selectedCategory === "All" ? "text-[#001e2b]" : "text-gray-400 hover:text-[#001e2b]"}`}
+                >
+                  Show All Products
+                </li>
+              </ul>
+            </div>
+
+            
+            <div>
+              <h3 className="text-[13px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
+                Filter by Colors
+              </h3>
+              <div className="flex gap-3">
+                <button
+                  onClick={() =>
+                    setSelectedColor(selectedColor === "black" ? null : "black")
+                  }
+                  className={`w-6 h-6 rounded-full bg-black border-2 transition-all ${selectedColor === "black" ? "border-amber-400 scale-110" : "border-transparent hover:border-gray-300"}`}
+                  title="Black"
+                ></button>
+                <button
+                  onClick={() =>
+                    setSelectedColor(selectedColor === "white" ? null : "white")
+                  }
+                  className={`w-6 h-6 rounded-full bg-gray-100 border-2 transition-all ${selectedColor === "white" ? "border-amber-400 scale-110" : "border-transparent hover:border-gray-300"}`}
+                  title="White"
+                ></button>
+                <button
+                  onClick={() =>
+                    setSelectedColor(selectedColor === "blue" ? null : "blue")
+                  }
+                  className={`w-6 h-6 rounded-full bg-blue-600 border-2 transition-all ${selectedColor === "blue" ? "border-amber-400 scale-110" : "border-transparent hover:border-gray-300"}`}
+                  title="Blue"
+                ></button>
+              </div>
+            </div>
+
+            
+            <div>
+              <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
+                Price
+              </h3>
+              <div className="space-y-4">
+                <div className="relative pt-1">
+                  <input
+                    type="range"
+                    min="0"
+                    max="2000"
+                    value={priceRange}
+                    onChange={(e) => setPriceRange(parseInt(e.target.value))}
+                    className="w-full h-1 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-[#001e2b]"
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[12px] font-bold">
+                  <span className="text-gray-400">
+                    Price:{" "}
+                    <span className="text-[#001e2b]">$0 — ${priceRange}</span>
+                  </span>
+                  <button
+                    onClick={() => setPriceRange(2000)}
+                    className="uppercase tracking-widest text-[#001e2b] hover:text-[#004a99] text-[10px]"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            
+            <div>
+              <h3 className="text-[13px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
+                Filter by Brand
+              </h3>
+              <div className="relative">
+                <div
+                  onClick={() => setIsBrandOpen(!isBrandOpen)}
+                  className="w-full border border-gray-200 rounded-md px-4 py-2.5 text-sm font-medium text-gray-700 flex items-center justify-between cursor-pointer hover:border-[#001e2b] transition-colors"
+                >
+                  <span>{selectedBrand}</span>
+                  <BiChevronDown
+                    size={20}
+                    className={`transition-transform duration-300 ${isBrandOpen ? "rotate-180" : ""}`}
+                  />
+                </div>
+
+                {isBrandOpen && (
+                  <div className="absolute top-full left-0 w-full bg-white border border-gray-100 shadow-xl rounded-md mt-1 z-50 py-2 animate-fadeIn">
+                    {brands.map((brand, idx) => (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          setSelectedBrand(brand);
+                          setIsBrandOpen(false);
+                        }}
+                        className={`px-4 py-2 text-sm cursor-pointer hover:bg-gray-50 transition-colors ${selectedBrand === brand ? "text-[#001e2b] font-bold bg-gray-50" : "text-gray-600"}`}
+                      >
+                        {brand}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            
+            <div className="relative">
+              <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
+                New Arrivals
+              </h3>
+
+              <div className="relative group/sidebar-swiper">
+                <Swiper
+                  modules={[Navigation, Autoplay]}
+                  navigation={{
+                    prevEl: ".sidebar-prev",
+                    nextEl: ".sidebar-next",
+                  }}
+                  autoplay={{ delay: 4000, disableOnInteraction: false }}
+                  slidesPerView={1}
+                  className="w-full"
+                >
+                  {[0, 1].map((slideIdx) => (
+                    <SwiperSlide key={slideIdx}>
+                      <div className="space-y-6">
+                        {products
+                          .slice(slideIdx * 3, (slideIdx + 1) * 3)
+                          .map((item, i) => (
+                            <div
+                              key={i}
+                              className="flex gap-4 group cursor-pointer"
+                            >
+                              <div className="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0">
+                                <img
+                                  src={item.image}
+                                  className="w-full h-full object-contain group-hover:scale-110 transition-transform"
+                                />
+                              </div>
+                              <div>
+                                <h4 className="text-[13px] font-bold text-[#001e2b] group-hover:text-[#004a99] transition-colors leading-tight mb-1 line-clamp-2">
+                                  {item.name}
+                                </h4>
+                                <p className="text-[12px] font-bold text-gray-400">
+                                  ${item.price.toFixed(2)}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+
+                <div className="flex gap-2 pt-6">
+                  <button className="sidebar-prev w-8 h-8 rounded bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#001e2b] hover:text-white transition-all cursor-pointer">
+                    <BiChevronLeft size={20} />
+                  </button>
+                  <button className="sidebar-next w-8 h-8 rounded bg-gray-50 flex items-center justify-center text-gray-400 hover:bg-[#001e2b] hover:text-white transition-all cursor-pointer">
+                    <BiChevronRight size={20} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          
+          <main className="flex-grow">
+            
+            <div className="relative w-full h-[200px] md:h-[300px] rounded-2xl overflow-hidden mb-8 md:mb-12 group">
+              <img
+                src="/home1.jpg"
+                alt="Features Banner"
+                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="absolute inset-y-0 left-8 md:left-16 flex flex-col justify-center text-white">
+                <p className="text-[8px] md:text-[10px] font-extrabold tracking-[0.2em] uppercase mb-2 md:mb-4 text-white/80">
+                  Exclusive Offers
+                </p>
+                <h2 className="text-2xl md:text-5xl font-extrabold mb-4 md:mb-8 leading-tight">
+                  New Tech <br /> Features 2026.
+                </h2>
+                <button className="bg-white text-[#001e2b] px-6 md:px-10 py-2.5 md:py-3.5 rounded-full font-extrabold text-[10px] md:text-[12px] uppercase tracking-widest hover:bg-[#ffb400] transition-all w-fit shadow-xl">
+                  Explore More
+                </button>
+              </div>
+
+              
+              <button className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-[#001e2b] flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                <BiChevronLeft size={24} />
+              </button>
+              <button className="absolute right-4 md:right-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-[#001e2b] flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm">
+                <BiChevronRight size={24} />
+              </button>
+            </div>
+
+            
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 border-b border-gray-100 pb-6">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-gray-400 border-r border-gray-200 pr-4">
+                  <BiGridAlt
+                    size={20}
+                    className="text-[#001e2b] cursor-pointer"
+                  />
+                  <BiListUl
+                    size={22}
+                    className="cursor-pointer hover:text-[#001e2b]"
+                  />
+                </div>
+                <div className="text-[13px] font-bold text-gray-400">
+                  Show:{" "}
+                  <span className="text-gray-300 ml-2">9 - 12 - 18 - 24</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-8">
+                <div className="text-[13px] font-bold text-gray-400">
+                  Showing all {filteredProducts.length} results
+                </div>
+                <div className="flex items-center gap-2 text-[13px] font-extrabold text-[#001e2b] cursor-pointer">
+                  Default Order
+                  <BiChevronDown size={18} />
+                </div>
+              </div>
+            </div>
+
+            
+            {filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+                {filteredProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    className="group relative bg-white border border-gray-100 rounded-lg p-6 hover:shadow-2xl transition-all duration-500"
+                  >
+                    
+                    {product.sale && (
+                      <div className="absolute top-4 left-4 z-10">
+                        <span className="bg-[#ff3b30] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                          Sale!
+                        </span>
+                      </div>
+                    )}
+
+                    
+                    <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                      <button className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400] transition-all">
+                        <BiTransfer size={18} />
+                      </button>
+                      <button
+                        onClick={() => addToWishlist(product)}
+                        className={`w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center transition-all ${isInWishlist(product.id) ? "text-[#ff3b30] bg-red-50" : "text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400]"}`}
+                      >
+                        <BiHeart
+                          size={18}
+                          className={
+                            isInWishlist(product.id) ? "fill-current" : ""
+                          }
+                        />
+                      </button>
+                      <button className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400] transition-all">
+                        <BiShow size={18} />
+                      </button>
+                    </div>
+
+                    
+                    <div className="aspect-square mb-6 overflow-hidden">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
+                      />
+                    </div>
+
+                    
+                    <div className="text-center">
+                      <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-2">
+                        {product.category}
+                      </p>
+                      <h3 className="text-[14px] font-extrabold text-[#001e2b] mb-2 hover:text-[#004a99] transition-colors cursor-pointer line-clamp-2 min-h-[40px]">
+                        {product.name}
+                      </h3>
+                      <div className="flex items-center justify-center gap-2 mb-6">
+                        {product.oldPrice && (
+                          <span className="text-[13px] font-bold text-gray-300 line-through">
+                            ${product.oldPrice.toFixed(2)}
+                          </span>
+                        )}
+                        <span
+                          className={`text-[14px] font-extrabold ${product.oldPrice ? "text-[#ff3b30]" : "text-[#001e2b]"}`}
+                        >
+                          {typeof product.price === "number"
+                            ? `$${product.price.toFixed(2)}`
+                            : `$${product.price}`}
+                        </span>
+                      </div>
+                      <button className="w-full border-2 border-[#001e2b] text-[#001e2b] hover:bg-[#001e2b] hover:text-white py-2.5 rounded-full font-extrabold text-[13px] transition-all">
+                        {product.hasOptions ? "Select options" : "Add to cart"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                <p className="text-gray-400 font-bold mb-4">
+                  No products match your filters.
+                </p>
+                <button
+                  onClick={() => {
+                    setSelectedCategory("All");
+                    setSelectedColor(null);
+                    setSelectedBrand("All Brands");
+                    setPriceRange(2000);
+                  }}
+                  className="text-[#001e2b] font-extrabold underline"
+                >
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </main>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Features;
