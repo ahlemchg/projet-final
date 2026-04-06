@@ -9,8 +9,7 @@ import {
   BiFilterAlt,
 } from "react-icons/bi";
 import AddProductModal from "./AddProductModal.jsx";
-
-const API_URL = "http://127.0.0.1:3000/api/products";
+import { userRequest } from "../requestMethods";
 
 const Products = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,9 +24,8 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await fetch(API_URL);
-      const data = await res.json();
-      setProducts(data);
+      const res = await userRequest.get("products");
+      setProducts(res.data);
     } catch (err) {
       console.error("Error fetching products:", err);
     } finally {
@@ -37,25 +35,21 @@ const Products = () => {
 
   const handleAddOrUpdateProduct = async (productData, id) => {
     try {
-      const method = id ? "PUT" : "POST";
-      const url = id ? `${API_URL}/${id}` : API_URL;
+      let res;
+      if (id) {
+        res = await userRequest.put(`products/${id}`, productData);
+      } else {
+        res = await userRequest.post("products", productData);
+      }
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
+      if (res.status === 200) {
         alert(
           id ? "Product updated successfully!" : "Product added successfully!",
         );
         fetchProducts();
         return true;
       } else {
-        alert("Error: " + (data.message || "Operation failed"));
+        alert("Error: Operation failed");
         return false;
       }
     } catch (err) {
@@ -67,8 +61,8 @@ const Products = () => {
 
   const handleToggleStatus = async (id) => {
     try {
-      const res = await fetch(`${API_URL}/${id}/status`, { method: "PATCH" });
-      if (res.ok) {
+      const res = await userRequest.patch(`products/${id}/status`);
+      if (res.status === 200) {
         fetchProducts();
       }
     } catch (err) {
@@ -79,8 +73,8 @@ const Products = () => {
   const handleDeleteProduct = async (id) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-        if (res.ok) {
+        const res = await userRequest.delete(`products/${id}`);
+        if (res.status === 200) {
           fetchProducts();
         }
       } catch (err) {

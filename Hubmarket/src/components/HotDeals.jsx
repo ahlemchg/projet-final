@@ -12,6 +12,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 import { useCart } from "../context/CartContext.jsx";
 import { useWishlist } from "../context/WishlistContext.jsx";
+import { publicRequest } from "../requestMethods";
 
 const HotDeals = () => {
   const { addToCart } = useCart();
@@ -22,9 +23,8 @@ const HotDeals = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:3000/api/products");
-        const data = await response.json();
-        setProducts(data.filter((p) => p.sale === true));
+        const res = await publicRequest.get("products");
+        setProducts(res.data.filter((p) => p.sale === true));
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {

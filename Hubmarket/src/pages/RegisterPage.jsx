@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { BiChevronRight, BiShow, BiHide } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
+import { publicRequest } from "../requestMethods";
 
 const RegisterPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -20,22 +21,17 @@ const RegisterPage = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:3000/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+      await publicRequest.post("auth/register", {
+        name,
+        email,
+        password,
+        username: email.split("@")[0], // Fallback username
       });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem("userInfo", JSON.stringify(data));
-        alert("Registration successful!");
-        navigate("/");
-      } else {
-        alert(data.message || "Registration failed");
-      }
+      alert("Registration successful! Please login.");
+      navigate("/login");
     } catch (error) {
       console.error("Registration error:", error);
-      alert("Network error");
+      alert(error.response?.data || "Registration failed");
     } finally {
       setIsLoading(false);
     }
@@ -129,7 +125,11 @@ const RegisterPage = () => {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#001e2b]"
                   >
-                    {showConfirmPassword ? <BiHide size={18} /> : <BiShow size={18} />}
+                    {showConfirmPassword ? (
+                      <BiHide size={18} />
+                    ) : (
+                      <BiShow size={18} />
+                    )}
                   </button>
                 </div>
               </div>

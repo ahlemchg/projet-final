@@ -60,13 +60,13 @@ const CartPage = () => {
               <div className="divide-y divide-gray-100">
                 {cartItems.map((item) => (
                   <div
-                    key={item.id}
+                    key={item._id || item.id}
                     className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 items-center"
                   >
                     <div className="col-span-1 md:col-span-6 flex items-center gap-4">
                       <div className="w-16 h-16 bg-gray-50 rounded-md p-1.5 flex-shrink-0">
                         <img
-                          src={item.image}
+                          src={item.image || (item.img && item.img[0])}
                           alt={item.name}
                           className="w-full h-full object-contain"
                         />
@@ -93,7 +93,7 @@ const CartPage = () => {
                       <div className="flex items-center border border-gray-200 rounded-sm">
                         <button
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity - 1)
+                            updateQuantity(item._id || item.id, item.quantity - 1)
                           }
                           className="px-2 py-0.5 hover:bg-gray-50 transition-colors font-bold text-gray-500 text-sm"
                         >
@@ -104,7 +104,7 @@ const CartPage = () => {
                         </span>
                         <button
                           onClick={() =>
-                            updateQuantity(item.id, item.quantity + 1)
+                            updateQuantity(item._id || item.id, item.quantity + 1)
                           }
                           className="px-2 py-0.5 hover:bg-gray-50 transition-colors font-bold text-gray-500 text-sm"
                         >
@@ -129,7 +129,7 @@ const CartPage = () => {
 
                     <div className="col-span-1 md:col-span-1 text-right">
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item._id || item.id)}
                         className="text-gray-400 hover:text-red-500 transition-colors p-1.5"
                       >
                         <BiX size={20} />

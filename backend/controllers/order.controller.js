@@ -1,57 +1,102 @@
 const Order = require("../models/order.model");
+const Product = require("../models/product.model");
 
-// @desc    Create new order
-// @route   POST /api/orders
-exports.addOrderItems = async (req, res) => {
-  const {
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    totalPrice,
-  } = req.body;
 
-  if (orderItems && orderItems.length === 0) {
-    res.status(400).json({ message: "No order items" });
-    return;
-  } else {
-    const order = new Order({
-      orderItems,
-      user: req.user._id,
-      shippingAddress,
-      paymentMethod,
-      totalPrice,
-    });
+const createOrder = async (req, res) => {
+  const newOrder = new Order(req.body);
+  try {
+    const savedOrder = await newOrder.save();
 
-    const createdOrder = await order.save();
-    res.status(201).json(createdOrder);
+    
+    if (req.body.products && req.body.products.length > 0) {
+      for (const item of req.body.products) {
+        await Product.findByIdAndUpdate(item.productId, {
+          $inc: { countInStock: -item.quantity },
+        });
+      }
+    }
+
+    res.status(200).json(savedOrder);
+  } catch (err) {
+    res.status(500).json(err);
   }
 };
 
-// @desc    Get order by ID
-// @route   GET /api/orders/:id
-exports.getOrderById = async (req, res) => {
-  const order = await Order.findById(req.params.id).populate(
-    "user",
-    "name email"
-  );
-
-  if (order) {
-    res.json(order);
-  } else {
-    res.status(404).json({ message: "Order not found" });
+const updateOrder = async (req, res) => {
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
+    res.status(200).json(updatedOrder);
+  } catch (err) {
+    res.status(500).json(err);
   }
 };
 
-// @desc    Get logged in user orders
-// @route   GET /api/orders/myorders
-exports.getMyOrders = async (req, res) => {
-  const orders = await Order.find({ user: req.user._id });
-  res.json(orders);
+
+const deleteOrder = async (req, res) => {
+  try {
+    await Order.findByIdAndDelete(req.params.id);
+    res.status(200).json("Order has been deleted...");
+  } catch (err) {
+    res.status(500).json(err);
+  }
 };
 
-// @desc    Get all orders
-// @route   GET /api/orders
-exports.getOrders = async (req, res) => {
-  const orders = await Order.find({}).populate("user", "id name");
-  res.json(orders);
+
+const getUserOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.params.userId });
+    res.status(200).json(orders);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.status(200).json(orders);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+
+const getMonthlyIncome = async (req, res) => {
+  const date = new Date();
+  const lastMonth = new Date(date.setMonth(date.getMonth() - 1));
+  const previousMonth = new Date(new Date().setMonth(lastMonth.getMonth() - 1));
+  try {
+    const income = await Order.aggregate([
+      { $match: { createdAt: { $gte: previousMonth } } },
+      {
+        $project: {
+          month: { $month: "$createdAt" },
+          sales: "$amount",
+        },
+      },
+      {
+        $group: {
+          _id: "$month",
+          total: { $sum: "$sales" },
+        },
+      },
+    ]);
+    res.status(200).json(income);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
+module.exports = {
+  createOrder,
+  updateOrder,
+  deleteOrder,
+  getUserOrders,
+  getAllOrders,
+  getMonthlyIncome,
 };

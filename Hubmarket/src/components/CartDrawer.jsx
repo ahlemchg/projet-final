@@ -13,6 +13,15 @@ const CartDrawer = () => {
     setIsCartOpen,
   } = useCart();
 
+  const formatPrice = (value) => {
+    if (typeof value === "number") return value.toFixed(2);
+    if (typeof value === "string") {
+      const parsed = parseFloat(value.replace("$", "").trim());
+      return Number.isNaN(parsed) ? "0.00" : parsed.toFixed(2);
+    }
+    return "0.00";
+  };
+
   return (
     <>
       <div
@@ -56,7 +65,7 @@ const CartDrawer = () => {
                     <p className="text-[11px] text-gray-500 mb-1.5 font-medium">
                       {item.quantity} ×{" "}
                       <span className="text-[#001e2b] font-bold">
-                        ${parseFloat(item.price.replace("$", "")).toFixed(2)}
+                        ${formatPrice(item.price)}
                       </span>
                     </p>
                     <div className="flex items-center justify-between">
@@ -83,10 +92,9 @@ const CartDrawer = () => {
                       </div>
                       <p className="text-[13px] font-bold text-[#001e2b]">
                         $
-                        {(
-                          parseFloat(item.price.replace("$", "")) *
-                          item.quantity
-                        ).toFixed(2)}
+                        {(parseFloat(formatPrice(item.price)) * item.quantity).toFixed(
+                          2,
+                        )}
                       </p>
                     </div>
                   </div>

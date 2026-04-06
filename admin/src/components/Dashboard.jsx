@@ -1,20 +1,48 @@
 import React, { useState, useEffect } from "react";
-import { BiPackage, BiUser, BiStats, BiCartAlt } from "react-icons/bi";
+import { BiPackage, BiUser, BiStats, BiCartAlt, BiLoaderAlt } from "react-icons/bi";
 import Navbar from "./Navbar.jsx";
 import PageHeader from "./PageHeader.jsx";
+import { userRequest } from "../requestMethods";
 
 const Dashboard = () => {
-  const [productCount, setProductCount] = useState(0);
+  const [stats, setStats] = useState(null);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://127.0.0.1:3000/api/products")
-      .then(res => res.json())
-      .then(data => setProductCount(data.length))
-      .catch(err => console.error("Error fetching product count:", err));
+    const fetchDashboardData = async () => {
+      try {
+        const [statsRes, ordersRes] = await Promise.all([
+          userRequest.get("stats"),
+          userRequest.get("orders"),
+        ]);
+        setStats(statsRes.data);
+        setRecentOrders(ordersRes.data.slice(0, 5));
+      } catch (err) {
+        console.error("Error fetching dashboard data:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDashboardData();
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="bg-[#f8fafc] min-h-screen">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center py-40">
+          <BiLoaderAlt className="animate-spin text-gray-300 mb-4" size={40} />
+          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+            Loading dashboard...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-white min-h-screen">
+    <div className="bg-[#f8fafc] min-h-screen">
       <Navbar />
 
       <PageHeader
@@ -34,14 +62,14 @@ const Dashboard = () => {
                   <BiCartAlt size={24} />
                 </div>
                 <span className="text-[12px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-md">
-                  +12.5%
+                  Active
                 </span>
               </div>
               <h4 className="text-[13px] font-bold text-gray-400 uppercase tracking-widest">
-                Total Sales
+                Total Revenue
               </h4>
               <p className="text-2xl font-extrabold text-[#001e2b] mt-1">
-                $45,280.00
+                ${stats?.totalRevenue.toFixed(2) || "0.00"}
               </p>
             </div>
 
@@ -51,14 +79,14 @@ const Dashboard = () => {
                   <BiPackage size={24} />
                 </div>
                 <span className="text-[12px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-md">
-                  Active
+                  Live
                 </span>
               </div>
               <h4 className="text-[13px] font-bold text-gray-400 uppercase tracking-widest">
                 Total Products
               </h4>
               <p className="text-2xl font-extrabold text-[#001e2b] mt-1">
-                {productCount}
+                {stats?.products || 0}
               </p>
             </div>
 
@@ -67,15 +95,15 @@ const Dashboard = () => {
                 <div className="p-3 bg-amber-50 text-amber-600 rounded-xl group-hover:scale-110 transition-transform">
                   <BiUser size={24} />
                 </div>
-                <span className="text-[12px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-md">
-                  -2.4%
+                <span className="text-[12px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-md">
+                  Active
                 </span>
               </div>
               <h4 className="text-[13px] font-bold text-gray-400 uppercase tracking-widest">
                 Total Users
               </h4>
               <p className="text-2xl font-extrabold text-[#001e2b] mt-1">
-                8,450
+                {stats?.users || 0}
               </p>
             </div>
 
@@ -85,14 +113,14 @@ const Dashboard = () => {
                   <BiStats size={24} />
                 </div>
                 <span className="text-[12px] font-bold text-green-500 bg-green-50 px-2 py-1 rounded-md">
-                  +18.1%
+                  Orders
                 </span>
               </div>
               <h4 className="text-[13px] font-bold text-gray-400 uppercase tracking-widest">
-                Conversion
+                Total Orders
               </h4>
               <p className="text-2xl font-extrabold text-[#001e2b] mt-1">
-                3.24%
+                {stats?.orders || 0}
               </p>
             </div>
           </div>
@@ -101,11 +129,11 @@ const Dashboard = () => {
           <div className="border border-gray-100 rounded-2xl shadow-sm bg-white overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/30">
               <h3 className="font-extrabold text-[#001e2b]">
-                Recent Transactions
+                Recent Orders
               </h3>
-              <button className="text-[12px] font-bold text-blue-500 hover:underline uppercase tracking-widest">
+              <a href="/orders" className="text-[12px] font-bold text-blue-500 hover:underline uppercase tracking-widest">
                 View all
-              </button>
+              </a>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -115,7 +143,7 @@ const Dashboard = () => {
                       Order ID
                     </th>
                     <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest">
-                      Product
+                      Customer
                     </th>
                     <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-widest">
                       Status
@@ -126,48 +154,28 @@ const Dashboard = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {[
-                    {
-                      id: "#7452",
-                      product: "iPhone 15 Pro",
-                      status: "Delivered",
-                      color: "bg-green-50 text-green-600",
-                      amount: "$999.00",
-                    },
-                    {
-                      id: "#7451",
-                      product: "MacBook Air",
-                      status: "Shipped",
-                      color: "bg-amber-50 text-amber-600",
-                      amount: "$1,299.00",
-                    },
-                    {
-                      id: "#7450",
-                      product: "AirPods Pro",
-                      status: "Processing",
-                      color: "bg-blue-50 text-blue-600",
-                      amount: "$249.00",
-                    },
-                  ].map((row, idx) => (
+                  {recentOrders.map((order, idx) => (
                     <tr
                       key={idx}
                       className="hover:bg-gray-50/30 transition-colors"
                     >
                       <td className="px-6 py-4 text-[13px] font-bold text-[#001e2b]">
-                        {row.id}
+                        #{order._id.substring(0, 8)}
                       </td>
                       <td className="px-6 py-4 text-[13px] text-gray-600">
-                        {row.product}
+                        {order.address?.firstName} {order.address?.lastName}
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest ${row.color}`}
+                          className={`px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest ${
+                            order.status === "delivered" ? "bg-green-50 text-green-600" : "bg-amber-50 text-amber-600"
+                          }`}
                         >
-                          {row.status}
+                          {order.status || "Pending"}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-[13px] font-bold text-[#001e2b]">
-                        {row.amount}
+                        ${order.amount.toFixed(2)}
                       </td>
                     </tr>
                   ))}

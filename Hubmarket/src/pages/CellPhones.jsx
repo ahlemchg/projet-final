@@ -4,6 +4,8 @@ import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { useWishlist } from "../context/WishlistContext.jsx";
+import { useCart } from "../context/CartContext.jsx";
+import { publicRequest } from "../requestMethods";
 
 import {
   BiChevronRight,
@@ -14,9 +16,12 @@ import {
   BiHeart,
   BiShow,
   BiChevronLeft,
+  BiFilterAlt,
+  BiX,
 } from "react-icons/bi";
 
 const CellPhones = () => {
+  const { addToCart } = useCart();
   const { addToWishlist, isInWishlist } = useWishlist();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -24,13 +29,8 @@ const CellPhones = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:3000/api/products");
-        const data = await response.json();
-        setProducts(
-          data.filter(
-            (p) => p.category === "Cell Phones" || p.category === "Smartphones",
-          ),
-        );
+        const res = await publicRequest.get("products?category=Cell Phones");
+        setProducts(res.data);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -45,6 +45,7 @@ const CellPhones = () => {
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedBrand, setSelectedBrand] = useState("All Brands");
   const [isBrandOpen, setIsBrandOpen] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const categories = [
     { name: "Cell Phones", count: 12, active: true },
@@ -116,7 +117,7 @@ const CellPhones = () => {
 
       <div className="container mx-auto px-4 lg:px-10 pb-20">
         <div className="flex flex-col lg:flex-row gap-12">
-          <aside className="w-full lg:w-[280px] flex-shrink-0 space-y-10">
+          <aside className="hidden lg:block w-full lg:w-[280px] flex-shrink-0 space-y-10">
             <div>
               <h3 className="text-[13px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
                 Product Categories
@@ -333,6 +334,15 @@ const CellPhones = () => {
           </aside>
 
           <main className="flex-grow">
+            <div className="lg:hidden mb-6">
+              <button
+                onClick={() => setIsMobileFilterOpen(true)}
+                className="inline-flex items-center gap-2 bg-[#001e2b] text-white px-4 py-2 rounded-lg font-bold text-[12px]"
+              >
+                <BiFilterAlt size={18} />
+                Filtres
+              </button>
+            </div>
             <div className="relative w-full h-[200px] md:h-[300px] rounded-2xl overflow-hidden mb-8 md:mb-12 group">
               <img
                 src="/home2.jpg"
@@ -464,7 +474,10 @@ const CellPhones = () => {
                             : product.price}
                         </span>
                       </div>
-                      <button className="w-full border-2 border-[#001e2b] text-[#001e2b] hover:bg-[#001e2b] hover:text-white py-2.5 rounded-full font-extrabold text-[13px] transition-all">
+                      <button
+                        onClick={() => addToCart(product)}
+                        className="w-full border-2 border-[#001e2b] text-[#001e2b] hover:bg-[#001e2b] hover:text-white py-2.5 rounded-full font-extrabold text-[13px] transition-all"
+                      >
                         {product.hasOptions ? "Select options" : "Add to cart"}
                       </button>
                     </div>
@@ -490,6 +503,87 @@ const CellPhones = () => {
               </div>
             )}
           </main>
+
+          <div
+            onClick={() => setIsMobileFilterOpen(false)}
+            className={`lg:hidden fixed inset-0 bg-black/40 z-[120] transition-opacity ${
+              isMobileFilterOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          />
+          <aside
+            className={`lg:hidden fixed top-0 right-0 h-full w-[88%] max-w-sm bg-white z-[130] shadow-2xl transform transition-transform duration-300 overflow-y-auto ${
+              isMobileFilterOpen ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <h3 className="font-extrabold text-[#001e2b]">Filtres</h3>
+              <button onClick={() => setIsMobileFilterOpen(false)}>
+                <BiX size={22} />
+              </button>
+            </div>
+            <div className="p-4 space-y-6">
+              <div>
+                <h4 className="text-[12px] font-extrabold text-[#001e2b] mb-3 uppercase">
+                  Categories
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((cat, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedCategory(cat.name)}
+                      className={`px-3 py-1.5 rounded-full text-[11px] font-bold border ${
+                        selectedCategory === cat.name
+                          ? "bg-[#001e2b] text-white border-[#001e2b]"
+                          : "bg-white text-gray-600 border-gray-200"
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-[12px] font-extrabold text-[#001e2b] mb-3 uppercase">
+                  Prix
+                </h4>
+                <input
+                  type="range"
+                  min="0"
+                  max="2000"
+                  value={priceRange}
+                  onChange={(e) => setPriceRange(parseInt(e.target.value))}
+                  className="w-full accent-[#001e2b]"
+                />
+                <p className="text-[12px] text-gray-500 mt-2">$0 - ${priceRange}</p>
+              </div>
+              <div>
+                <h4 className="text-[12px] font-extrabold text-[#001e2b] mb-3 uppercase">
+                  Marque
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {brands.map((brand, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedBrand(brand)}
+                      className={`px-3 py-1.5 rounded-full text-[11px] font-bold border ${
+                        selectedBrand === brand
+                          ? "bg-[#001e2b] text-white border-[#001e2b]"
+                          : "bg-white text-gray-600 border-gray-200"
+                      }`}
+                    >
+                      {brand}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button
+                onClick={() => setIsMobileFilterOpen(false)}
+                className="w-full bg-[#001e2b] text-white py-2.5 rounded-lg font-bold text-[12px]"
+              >
+                Appliquer
+              </button>
+            </div>
+          </aside>
         </div>
       </div>
     </div>

@@ -12,6 +12,26 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
+  const normalizePrice = (value) => {
+    if (typeof value === "number") return value;
+    if (typeof value === "string") {
+      const parsed = parseFloat(value.replace("$", "").trim());
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+    return 0;
+  };
+
+  const normalizeProduct = (product) => {
+    const id = product?._id || product?.id;
+    return {
+      ...product,
+      id,
+      name: product?.name || product?.title || "Product",
+      image: product?.image || (Array.isArray(product?.img) ? product.img[0] : product?.img) || "/product_1.jpg",
+      price: normalizePrice(product?.price),
+    };
+  };
+
   const [cartItems, setCartItems] = useState(() => {
     const savedCart = localStorage.getItem("hubmarket_cart");
     return savedCart ? JSON.parse(savedCart) : [];
@@ -24,26 +44,40 @@ export const CartProvider = ({ children }) => {
   }, [cartItems]);
 
   const addToCart = (product) => {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
+    const isAuthenticated = Boolean(userInfo?._id && userInfo?.accessToken);
+    if (!isAuthenticated) {
+      setToast({
+        isOpen: true,
+        message: "Please login to add products to cart.",
+      });
+      return;
+    }
+
+    const normalizedProduct = normalizeProduct(product);
+    const productId = normalizedProduct.id;
+    if (!productId) return;
+
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id);
+      const existingItem = prevItems.find((item) => item.id === productId);
       if (existingItem) {
         return prevItems.map((item) =>
-          item.id === product.id
+          item.id === productId
             ? { ...item, quantity: item.quantity + 1 }
             : item,
         );
       }
-      return [...prevItems, { ...product, quantity: 1 }];
+      return [...prevItems, { ...normalizedProduct, quantity: 1 }];
     });
-    setToast({ isOpen: true, message: `"${product.name}" added to cart!` });
-    
+    setToast({
+      isOpen: true,
+      message: `"${normalizedProduct.name}" added to cart!`,
+    });
   };
 
   const removeFromCart = (productId) => {
     const itemToRemove = cartItems.find((item) => item.id === productId);
-    setCartItems((prevItems) =>
-      prevItems.filter((item) => item.id !== productId),
-    );
+    setCartItems((prevItems) => prevItems.filter((item) => item.id !== productId));
     if (itemToRemove) {
       setToast({
         isOpen: true,
@@ -68,11 +102,7 @@ export const CartProvider = ({ children }) => {
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
   const cartTotal = cartItems.reduce((acc, item) => {
-    const price =
-      typeof item.price === "string"
-        ? parseFloat(item.price.replace("$", ""))
-        : item.price;
-    return acc + price * item.quantity;
+    return acc + normalizePrice(item.price) * item.quantity;
   }, 0);
 
   return (

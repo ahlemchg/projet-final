@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { BiChevronRight, BiShow, BiHide } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
+import { publicRequest } from "../requestMethods";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -13,22 +14,16 @@ const LoginPage = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:3000/api/users/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const res = await publicRequest.post("auth/login", {
+        username, // The backend accepts username or email in the 'username' field
+        password,
       });
-      const data = await response.json();
-      if (response.ok) {
-        localStorage.setItem("userInfo", JSON.stringify(data));
-        alert("Login successful!");
-        navigate("/");
-      } else {
-        alert(data.message || "Login failed");
-      }
+      localStorage.setItem("userInfo", JSON.stringify(res.data));
+      alert("Login successful!");
+      navigate("/account");
     } catch (error) {
       console.error("Login error:", error);
-      alert("Network error");
+      alert(error.response?.data || "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -59,12 +54,13 @@ const LoginPage = () => {
             <form className="space-y-5" onSubmit={handleLogin}>
               <div>
                 <label className="block text-[13px] font-bold text-gray-700 mb-2">
-                  Email address <span className="text-red-500">*</span>
+                  Username or email address{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full border border-gray-200 rounded-md px-4 py-2.5 text-[13px] focus:outline-none focus:border-[#001e2b] transition-colors"
                   required
                 />

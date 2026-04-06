@@ -1,60 +1,82 @@
 const express = require("express");
+const app = express();
 const dotenv = require("dotenv");
-const connectDB = require("./config/db.config");
-const productRoutes = require("./routes/product.route");
-const userRoutes = require("./routes/user.route");
-const orderRoutes = require("./routes/order.route");
-const errorMiddleware = require("./middlewares/error.middleware");
-
-// Load env vars
 dotenv.config();
+const cors = require("cors");
+const connectDB = require("./config/db");
+const User = require("./models/user.model");
+const CryptoJS = require("crypto-js");
 
-// Connect to database
+// Routes
+const authRoute = require("./routes/auth.routes");
+const userRoute = require("./routes/user.routes");
+const productRoute = require("./routes/product.routes");
+const cartRoute = require("./routes/cart.routes");
+const orderRoute = require("./routes/order.routes");
+const statsRoute = require("./routes/stats.routes");
+const wishlistRoute = require("./routes/wishlist.routes");
+const faqRoute = require("./routes/faq.routes");
+const couponRoute = require("./routes/coupon.routes");
+const newsletterRoute = require("./routes/newsletter.routes");
+
+// Database Connection
 connectDB();
 
-const app = express();
+// Initialize Admin User
+const initAdmin = async () => {
+  try {
+    const adminUsername = "admin";
+    const adminEmail = "admin@hubmarket.com";
+    const encryptedPassword = CryptoJS.AES.encrypt(
+      "Admin123!",
+      process.env.PASS_SEC,
+    ).toString();
 
-// Body parser
+    // Check if any admin exists
+    const admin = await User.findOne({ isAdmin: true });
+
+    if (!admin) {
+      const newAdmin = new User({
+        username: adminUsername,
+        email: adminEmail,
+        password: encryptedPassword,
+        isAdmin: true,
+      });
+      await newAdmin.save();
+      console.log(`Admin account created: ${adminUsername} / Admin123!`);
+    } else {
+      // Update existing admin to new credentials if they are different
+      admin.username = adminUsername;
+      admin.email = adminEmail;
+      admin.password = encryptedPassword;
+      await admin.save();
+      console.log(`Admin account updated: ${adminUsername} / Admin123!`);
+    }
+  } catch (err) {
+    console.error("Admin initialization error:", err);
+  }
+};
+initAdmin();
+
+// Middlewares
+app.use(cors());
+app.use(express.json());
+
+// API Endpoints
+app.use("/api/auth", authRoute);
+app.use("/api/users", userRoute);
+app.use("/api/products", productRoute);
+app.use("/api/carts", cartRoute);
+app.use("/api/orders", orderRoute);
+app.use("/api/stats", statsRoute);
+app.use("/api/wishlist", wishlistRoute);
+app.use("/api/faq", faqRoute);
+app.use("/api/coupons", couponRoute);
+app.use("/api/newsletter", newsletterRoute);
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-// Manual CORS middleware
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS, PATCH",
-  );
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization, Content-Length",
-  );
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
-
-// Mount routes
-app.use("/api/products", productRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/orders", orderRoutes);
-
-// Error Middleware
-app.use(errorMiddleware);
-
 const PORT = process.env.PORT || 3000;
-
-const server = app.listen(PORT, () => {
-  console.log(
-    `Server running in ${process.env.NODE_ENV || "development"} mode on port ${PORT}`,
-  );
-  console.log(`API available at http://localhost:${PORT}/api/products`);
-});
-
-// Handle unhandled promise rejections
-process.on("unhandledRejection", (err, promise) => {
-  console.log(`Error: ${err.message}`);
-  // Close server & exit process
-  server.close(() => process.exit(1));
+app.listen(PORT, () => {
+  console.log(`Backend server is running on port ${PORT}!`);
 });

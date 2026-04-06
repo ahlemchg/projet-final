@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   BiEnvelope,
   BiPhoneCall,
@@ -9,6 +10,22 @@ import {
 import { FaCcVisa, FaCcMastercard, FaCcPaypal, FaCcAmex } from "react-icons/fa";
 
 const Footer = () => {
+  const productLinks = [
+    { label: "Track Your Order", to: "/track-order" },
+    { label: "Product Guides", to: "/product-guides" },
+    { label: "Wishlists", to: "/wishlists" },
+    { label: "Privacy Policy", to: "/privacy-policy" },
+    { label: "Store Locator", to: "/store-locator" },
+  ];
+
+  const marketplaceLinks = [
+    { label: "In-Store Shop", to: "/in-store-shop" },
+    { label: "Brands x", to: "/brands" },
+    { label: "Gift Cards", to: "/gift-cards" },
+    { label: "Careers", to: "/careers" },
+    { label: "About Us", to: "/about-us" },
+  ];
+
   return (
     <footer className="bg-[#001e2b] text-white pt-10 pb-6">
       <div className="container mx-auto px-4 lg:px-10">
@@ -67,84 +84,64 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-base mb-4">Products</h3>
             <ul className="flex flex-col gap-2.5 text-gray-400 text-[13px]">
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Track Your Order
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Product Guides
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Wishlists
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Privacy Policy
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Store Locator
-              </li>
+              {productLinks.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className="hover:text-amber-400 cursor-pointer transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
             <h3 className="font-bold text-base mb-4">Marketplace</h3>
             <ul className="flex flex-col gap-2.5 text-gray-400 text-[13px]">
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                In-Store Shop
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Brands x
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Gift Cards
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Careers
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                About Us
-              </li>
+              {marketplaceLinks.map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className="hover:text-amber-400 cursor-pointer transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
             <h3 className="font-bold text-base mb-4">Customer Care</h3>
             <ul className="flex flex-col gap-2.5 text-gray-400 text-[13px]">
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Track Your Order
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Product Guides
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Wishlists
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Privacy Policy
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Store Locator
-              </li>
+              {productLinks.map((item) => (
+                <li key={`care-${item.to}`}>
+                  <Link
+                    to={item.to}
+                    className="hover:text-amber-400 cursor-pointer transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           <div>
             <h3 className="font-bold text-base mb-4">Marketplace</h3>
             <ul className="flex flex-col gap-2.5 text-gray-400 text-[13px]">
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                In-Store Shop
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Brands x
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Gift Cards
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                Careers
-              </li>
-              <li className="hover:text-amber-400 cursor-pointer transition-colors">
-                About Us
-              </li>
+              {marketplaceLinks.map((item) => (
+                <li key={`market-${item.to}`}>
+                  <Link
+                    to={item.to}
+                    className="hover:text-amber-400 cursor-pointer transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>

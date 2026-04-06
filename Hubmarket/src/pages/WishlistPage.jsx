@@ -47,26 +47,26 @@ const WishlistPage = () => {
               <tbody>
                 {wishlistItems.map((item) => (
                   <tr
-                    key={item.id}
+                    key={item._id || item.id}
                     className="border-b border-gray-50 group hover:bg-gray-50 transition-colors"
                   >
                     <td className="py-6 px-4">
                       <div className="flex items-center gap-4">
                         <button
-                          onClick={() => removeFromWishlist(item.id)}
+                          onClick={() => removeFromWishlist(item._id || item.id)}
                           className="text-gray-300 hover:text-red-500 transition-colors"
                         >
                           <BiTrash size={20} />
                         </button>
                         <div className="w-20 h-20 bg-white rounded-lg border border-gray-100 p-2 flex-shrink-0">
                           <img
-                            src={item.image}
+                            src={item.image || (item.img && item.img[0])}
                             alt={item.name}
                             className="w-full h-full object-contain"
                           />
                         </div>
                         <Link
-                          to={`/product/${item.id}`}
+                          to={`/product/${item._id || item.id}`}
                           className="text-[14px] font-extrabold text-[#001e2b] hover:text-[#004a99] transition-colors"
                         >
                           {item.name}
