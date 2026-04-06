@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import {
   BiChevronRight,
@@ -12,10 +12,12 @@ import { publicRequest, userRequest } from "../requestMethods";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { cartTotal, cartItems, clearCart } = useCart();
   const [isOrdered, setIsOrdered] = useState(false);
   const [showCoupon, setShowCoupon] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("cod");
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState("");
@@ -37,6 +39,33 @@ const CheckoutPage = () => {
       navigate("/login");
     }
   }, [userInfo, navigate]);
+
+  const pendingStripeOrderKey = useMemo(
+    () => `hubmarket_pending_stripe_order_${userInfo?._id || "anon"}`,
+    [userInfo?._id],
+  );
+
+  useEffect(() => {
+    const stripeStatus = searchParams.get("stripe");
+    if (stripeStatus !== "success") return;
+    if (!userInfo?._id) return;
+
+    const raw = localStorage.getItem(pendingStripeOrderKey);
+    if (!raw) return;
+
+    const run = async () => {
+      try {
+        const orderData = JSON.parse(raw);
+        await userRequest.post("orders", orderData);
+        localStorage.removeItem(pendingStripeOrderKey);
+        setIsOrdered(true);
+        clearCart();
+      } catch (e) {
+        alert(e.response?.data || "Stripe payment succeeded but order failed.");
+      }
+    };
+    run();
+  }, [searchParams, userInfo?._id, pendingStripeOrderKey, clearCart]);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -94,9 +123,22 @@ const CheckoutPage = () => {
     };
 
     try {
-      await userRequest.post("orders", orderData);
-      setIsOrdered(true);
-      clearCart();
+      if (paymentMethod === "stripe") {
+        localStorage.setItem(pendingStripeOrderKey, JSON.stringify(orderData));
+        const res = await userRequest.post(
+          "payments/stripe/create-checkout-session",
+          { cartItems },
+        );
+        if (res?.data?.url) {
+          window.location.href = res.data.url;
+          return;
+        }
+        throw new Error("Stripe session URL missing.");
+      } else {
+        await userRequest.post("orders", orderData);
+        setIsOrdered(true);
+        clearCart();
+      }
     } catch (error) {
       console.error("Order error:", error);
       alert("Something went wrong with your order. Please try again.");
@@ -479,28 +521,44 @@ const CheckoutPage = () => {
                   Payment
                 </h3>
 
-                <div className="border border-gray-200 rounded-sm p-4 mb-4">
-                  <div className="flex gap-3 items-start">
+                <div className="space-y-3">
+                  <label className="border border-gray-200 rounded-sm p-4 flex gap-3 items-start cursor-pointer">
                     <input
                       type="radio"
                       id="cash_on_delivery"
                       name="payment_method"
-                      checked
-                      readOnly
+                      checked={paymentMethod === "cod"}
+                      onChange={() => setPaymentMethod("cod")}
                       className="mt-1 accent-[#001e2b]"
                     />
                     <div>
-                      <label
-                        htmlFor="cash_on_delivery"
-                        className="text-[13px] font-bold text-[#001e2b]"
-                      >
+                      <span className="text-[13px] font-bold text-[#001e2b]">
                         Cash on delivery
-                      </label>
+                      </span>
                       <p className="text-[12px] text-gray-600 mt-1">
                         Pay with cash when your order is delivered.
                       </p>
                     </div>
-                  </div>
+                  </label>
+
+                  <label className="border border-gray-200 rounded-sm p-4 flex gap-3 items-start cursor-pointer">
+                    <input
+                      type="radio"
+                      id="stripe"
+                      name="payment_method"
+                      checked={paymentMethod === "stripe"}
+                      onChange={() => setPaymentMethod("stripe")}
+                      className="mt-1 accent-[#001e2b]"
+                    />
+                    <div>
+                      <span className="text-[13px] font-bold text-[#001e2b]">
+                        Pay with Stripe
+                      </span>
+                      <p className="text-[12px] text-gray-600 mt-1">
+                        Secure card payment (redirect to Stripe Checkout).
+                      </p>
+                    </div>
+                  </label>
                 </div>
 
                 <p className="text-[11px] text-gray-500 leading-relaxed mb-6">

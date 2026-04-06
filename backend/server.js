@@ -18,6 +18,7 @@ const wishlistRoute = require("./routes/wishlist.routes");
 const faqRoute = require("./routes/faq.routes");
 const couponRoute = require("./routes/coupon.routes");
 const newsletterRoute = require("./routes/newsletter.routes");
+const paymentRoute = require("./routes/payment.routes");
 
 // Database Connection
 connectDB();
@@ -73,6 +74,7 @@ app.use("/api/wishlist", wishlistRoute);
 app.use("/api/faq", faqRoute);
 app.use("/api/coupons", couponRoute);
 app.use("/api/newsletter", newsletterRoute);
+app.use("/api/payments", paymentRoute);
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
