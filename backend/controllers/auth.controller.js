@@ -1,7 +1,10 @@
 const User = require("../models/user.model");
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
-const { sendResetPasswordEmail, sendWelcomeEmail } = require("../services/email.service");
+const {
+  sendResetPasswordEmail,
+  sendWelcomeEmail,
+} = require("../services/email.service");
 
 function normalizeResetCode(code) {
   return String(code ?? "").replace(/\s/g, "");
@@ -31,7 +34,7 @@ const forgotPassword = async (req, res) => {
         resetPasswordToken: undefined,
         resetPasswordExpire: undefined,
       },
-      { returnDocument: "after", overwrite: false }
+      { returnDocument: "after", overwrite: false },
     );
 
     void sendResetPasswordEmail(email, resetCode).catch((mailErr) => {
@@ -41,7 +44,11 @@ const forgotPassword = async (req, res) => {
     res.status(200).json("Reset code sent to your email!");
   } catch (err) {
     console.error("Forgot Password Error:", err);
-    res.status(500).json(err.message || "An error occurred during the password reset process.");
+    res
+      .status(500)
+      .json(
+        err.message || "An error occurred during the password reset process.",
+      );
   }
 };
 
@@ -53,7 +60,9 @@ const resetPassword = async (req, res) => {
     const { newPassword } = req.body;
 
     if (!email || !code || !newPassword) {
-      return res.status(400).json("Email, code, and new password are required.");
+      return res
+        .status(400)
+        .json("Email, code, and new password are required.");
     }
 
     const user = await User.findOne({
@@ -66,7 +75,10 @@ const resetPassword = async (req, res) => {
       return res.status(400).json("Invalid or expired reset code!");
     }
 
-    const encryptedPassword = CryptoJS.AES.encrypt(newPassword, process.env.PASS_SEC).toString();
+    const encryptedPassword = CryptoJS.AES.encrypt(
+      newPassword,
+      process.env.PASS_SEC,
+    ).toString();
 
     await User.findOneAndUpdate(
       { _id: user._id },
@@ -79,7 +91,7 @@ const resetPassword = async (req, res) => {
           resetPasswordExpire: "",
         },
       },
-      { returnDocument: "after" }
+      { returnDocument: "after" },
     );
 
     res.status(200).json("Password has been reset successfully!");
@@ -92,7 +104,24 @@ const resetPassword = async (req, res) => {
 // REGISTER
 const register = async (req, res) => {
   const { username, name, email, password } = req.body;
+  console.log("Registration request:", {
+    username,
+    name,
+    email,
+    password: password ? "********" : "missing",
+  });
+
+  if (!email || !password) {
+    return res.status(400).json("Email and password are required!");
+  }
+
   const finalUsername = username || name || email.split("@")[0];
+
+  if (!process.env.PASS_SEC) {
+    console.error("PASS_SEC is not defined in environment variables!");
+    return res.status(500).json("Server configuration error.");
+  }
+
   const newUser = new User({
     username: finalUsername,
     name: name || username,
@@ -102,13 +131,23 @@ const register = async (req, res) => {
 
   try {
     const savedUser = await newUser.save();
+    console.log("User saved successfully:", savedUser._id);
 
     sendWelcomeEmail(email, "WELCOME20").catch((err) =>
-      console.error("Background welcome email failed:", err.message)
+      console.error("Background welcome email failed:", err.message),
     );
 
     res.status(201).json(savedUser);
   } catch (err) {
+    console.error("Registration error:", err);
+    if (err.code === 11000) {
+      const field = Object.keys(err.keyPattern)[0];
+      return res
+        .status(400)
+        .json(
+          `${field.charAt(0).toUpperCase() + field.slice(1)} already exists!`,
+        );
+    }
     res.status(500).json(err.message || "An error occurred.");
   }
 };
@@ -122,9 +161,10 @@ const login = async (req, res) => {
   try {
     const identifier = (req.body.username || "").trim();
     const plainPassword = req.body.password;
+    console.log("Login attempt for:", identifier);
 
     if (!identifier || plainPassword === undefined || plainPassword === null) {
-      return res.status(401).json("Wrong credentials!");
+      return res.status(400).json("Username/email and password are required!");
     }
 
     let user = await User.findOne({ username: identifier });
@@ -135,14 +175,26 @@ const login = async (req, res) => {
     }
 
     if (!user) {
+      console.log("User not found:", identifier);
       return res.status(401).json("Wrong credentials!");
     }
 
-    const hashedPassword = CryptoJS.AES.decrypt(user.password, process.env.PASS_SEC);
-    const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
+    if (!process.env.PASS_SEC) {
+      console.error("PASS_SEC is not defined!");
+      return res.status(500).json("Server configuration error.");
+    }
+
+    const bytes = CryptoJS.AES.decrypt(user.password, process.env.PASS_SEC);
+    const originalPassword = bytes.toString(CryptoJS.enc.Utf8);
 
     if (originalPassword !== plainPassword) {
+      console.log("Invalid password for:", identifier);
       return res.status(401).json("Wrong credentials!");
+    }
+
+    if (!process.env.JWT_SEC) {
+      console.error("JWT_SEC is not defined!");
+      return res.status(500).json("Server configuration error.");
     }
 
     const accessToken = jwt.sign(
@@ -151,7 +203,7 @@ const login = async (req, res) => {
         isAdmin: user.isAdmin,
       },
       process.env.JWT_SEC,
-      { expiresIn: "3d" }
+      { expiresIn: "3d" },
     );
 
     const { password, ...others } = user._doc;

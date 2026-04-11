@@ -20,9 +20,6 @@ const couponRoute = require("./routes/coupon.routes");
 const newsletterRoute = require("./routes/newsletter.routes");
 const paymentRoute = require("./routes/payment.routes");
 
-// Database Connection
-connectDB();
-
 // Initialize Admin User
 const initAdmin = async () => {
   try {
@@ -57,15 +54,40 @@ const initAdmin = async () => {
     console.error("Admin initialization error:", err);
   }
 };
-initAdmin();
+
+// Start Server function
+const startServer = async () => {
+  try {
+    // Database Connection
+    await connectDB();
+
+    // Initialize Admin User
+    await initAdmin();
+
+    const PORT = process.env.PORT || 3000;
+    app.listen(PORT, () => {
+      console.log(`Backend server is running on port ${PORT}!`);
+    });
+  } catch (err) {
+    console.error("Failed to start server:", err.message);
+    process.exit(1);
+  }
+};
 
 // Middlewares
-app.use(cors({
-  origin: ['https://adminmarket-delta.vercel.app', 'http://localhost:3000'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'token']
-}));
+app.use(
+  cors({
+    origin: [
+      "https://adminmarket-delta.vercel.app",
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:4173",
+    ],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "token"],
+  }),
+);
 app.use(express.json());
 
 // API Endpoints
@@ -83,7 +105,4 @@ app.use("/api/payments", paymentRoute);
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Backend server is running on port ${PORT}!`);
-});
+startServer();

@@ -31,7 +31,8 @@ const RegisterPage = () => {
       navigate("/login");
     } catch (error) {
       console.error("Registration error:", error);
-      alert(error.response?.data || "Registration failed");
+      const errorMsg = error.response?.data?.message || error.response?.data || "Registration failed";
+      alert(errorMsg);
     } finally {
       setIsLoading(false);
     }
