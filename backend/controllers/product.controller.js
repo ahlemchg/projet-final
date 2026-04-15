@@ -26,13 +26,16 @@ const syncFields = (data) => {
 
 // CREATE
 const createProduct = async (req, res) => {
+  console.log("Create product request received:", JSON.stringify(req.body).substring(0, 200) + "...");
   const syncedData = syncFields(req.body);
   const newProduct = new Product(syncedData);
   try {
     const savedProduct = await newProduct.save();
+    console.log("Product saved successfully:", savedProduct._id);
     res.status(200).json(savedProduct);
   } catch (err) {
-    res.status(500).json(err);
+    console.error("Error creating product:", err);
+    res.status(500).json({ message: err.message || "An error occurred during product creation.", error: err });
   }
 };
 

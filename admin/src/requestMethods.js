@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "https://projet-final-23eq.onrender.com/api/";
+const BASE_URL = "http://localhost:3000/api/";
 
 const getToken = () => {
   const adminToken = localStorage.getItem("adminToken");

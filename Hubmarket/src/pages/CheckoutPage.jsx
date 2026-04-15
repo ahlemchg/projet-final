@@ -13,13 +13,19 @@ import { publicRequest, userRequest } from "../requestMethods";
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { cartTotal, cartItems, clearCart } = useCart();
+  const {
+    subtotal,
+    cartTotal,
+    cartItems,
+    clearCart,
+    appliedCoupon: globalAppliedCoupon,
+    applyCoupon,
+  } = useCart();
   const [isOrdered, setIsOrdered] = useState(false);
   const [showCoupon, setShowCoupon] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
@@ -80,21 +86,20 @@ const CheckoutPage = () => {
       const res = await publicRequest.get(
         `coupons/validate/${couponCode.trim()}?email=${formData.email}`,
       );
-      setAppliedCoupon(res.data);
+      applyCoupon(res.data);
       alert("Coupon applied successfully!");
     } catch (err) {
       setCouponError(err.response?.data || "Invalid coupon code.");
-      setAppliedCoupon(null);
     }
   };
 
   const calculateDiscountedTotal = () => {
-    if (!appliedCoupon) return cartTotal;
+    if (!globalAppliedCoupon) return subtotal;
 
-    if (appliedCoupon.discountType === "percentage") {
-      return cartTotal - (cartTotal * appliedCoupon.discount) / 100;
+    if (globalAppliedCoupon.discountType === "percentage") {
+      return subtotal - (subtotal * globalAppliedCoupon.discount) / 100;
     } else {
-      return Math.max(0, cartTotal - appliedCoupon.discount);
+      return Math.max(0, subtotal - globalAppliedCoupon.discount);
     }
   };
 
@@ -118,7 +123,7 @@ const CheckoutPage = () => {
       address: {
         ...formData,
       },
-      couponCode: appliedCoupon?.code,
+      couponCode: globalAppliedCoupon?.code,
       status: "pending",
     };
 
@@ -228,12 +233,12 @@ const CheckoutPage = () => {
                   {couponError}
                 </p>
               )}
-              {appliedCoupon && (
+              {globalAppliedCoupon && (
                 <p className="text-green-600 text-[11px] mt-2 font-bold">
-                  Coupon {appliedCoupon.code} applied! (
-                  {appliedCoupon.discountType === "percentage"
-                    ? appliedCoupon.discount + "%"
-                    : "$" + appliedCoupon.discount}{" "}
+                  Coupon {globalAppliedCoupon.code} applied! (
+                  {globalAppliedCoupon.discountType === "percentage"
+                    ? globalAppliedCoupon.discount + "%"
+                    : "$" + globalAppliedCoupon.discount}{" "}
                   off)
                 </p>
               )}
@@ -496,13 +501,13 @@ const CheckoutPage = () => {
               <div className="flex flex-col gap-4 border-t border-gray-200 pt-4">
                 <div className="flex justify-between items-center text-[12px] font-bold uppercase tracking-wider text-[#001e2b]">
                   <span>SUBTOTAL</span>
-                  <span className="text-[16px]">${cartTotal.toFixed(2)}</span>
+                  <span className="text-[16px]">${subtotal.toFixed(2)}</span>
                 </div>
-                {appliedCoupon && (
+                {globalAppliedCoupon && (
                   <div className="flex justify-between items-center text-[12px] font-bold uppercase tracking-wider text-green-600">
-                    <span>DISCOUNT ({appliedCoupon.code})</span>
+                    <span>DISCOUNT ({globalAppliedCoupon.code})</span>
                     <span className="text-[16px]">
-                      -${(cartTotal - calculateDiscountedTotal()).toFixed(2)}
+                      -${(subtotal - calculateDiscountedTotal()).toFixed(2)}
                     </span>
                   </div>
                 )}

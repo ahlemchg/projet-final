@@ -26,7 +26,7 @@ function buildBlogTemplate(blogTitle, blogDesc, blogId) {
       <h2 style="color: #000; margin-bottom: 15px;">${blogTitle}</h2>
       <p style="color: #444; line-height: 1.6; margin-bottom: 25px;">${blogDesc}</p>
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://hubrobe.vercel.app/news/${blogId}" style="display: inline-block; background: #000; color: #fff; padding: 15px 35px; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 13px; letter-spacing: 1px;">Read Full Article</a>
+        <a href="http://localhost:5173/news/${blogId}" style="display: inline-block; background: #000; color: #fff; padding: 15px 35px; text-decoration: none; font-weight: bold; text-transform: uppercase; font-size: 13px; letter-spacing: 1px;">Read Full Article</a>
       </div>
     `,
   };

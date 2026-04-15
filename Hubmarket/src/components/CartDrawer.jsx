@@ -59,9 +59,15 @@ const CartDrawer = () => {
                     />
                   </div>
                   <div className="flex-grow">
-                    <h3 className="text-[13px] font-bold text-[#001e2b] mb-1 line-clamp-2 leading-tight">
-                      {item.name}
-                    </h3>
+                    <Link
+                      to={`/product/${item._id || item.id}`}
+                      onClick={() => setIsCartOpen(false)}
+                      className="block"
+                    >
+                      <h3 className="text-[13px] font-bold text-[#001e2b] mb-1 line-clamp-2 leading-tight hover:text-[#004a99] transition-colors">
+                        {item.name}
+                      </h3>
+                    </Link>
                     <p className="text-[11px] text-gray-500 mb-1.5 font-medium">
                       {item.quantity} ×{" "}
                       <span className="text-[#001e2b] font-bold">

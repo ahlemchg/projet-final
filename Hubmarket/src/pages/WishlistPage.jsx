@@ -1,12 +1,22 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useWishlist } from "../context/WishlistContext.jsx";
 import { useCart } from "../context/CartContext.jsx";
 import { BiChevronRight, BiTrash, BiCartAlt, BiHeart } from "react-icons/bi";
 
 const WishlistPage = () => {
+  const navigate = useNavigate();
   const { wishlistItems, removeFromWishlist } = useWishlist();
   const { addToCart } = useCart();
+  const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
+
+  useEffect(() => {
+    if (!userInfo) {
+      navigate("/login");
+    }
+  }, [userInfo, navigate]);
+
+  if (!userInfo) return null;
 
   return (
     <div className="bg-white min-h-screen">

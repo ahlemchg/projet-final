@@ -82,6 +82,27 @@ const AboutPage = () => {
             <p className="text-gray-500 text-sm group-hover:text-gray-300 transition-all">30-day free returns policy for your peace of mind.</p>
           </div>
         </div>
+
+        <div className="bg-[#001e2b] rounded-[3rem] p-12 text-center text-white">
+          <h2 className="text-3xl font-extrabold mb-8">Want to know more?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Link to="/our-story" className="bg-white/10 hover:bg-white/20 p-6 rounded-3xl transition-all group">
+              <h4 className="font-bold text-lg mb-2">Our Story</h4>
+              <p className="text-white/60 text-sm">Deep dive into our history and values.</p>
+              <BiChevronRight className="mx-auto mt-4 group-hover:translate-x-2 transition-transform" />
+            </Link>
+            <Link to="/our-team" className="bg-white/10 hover:bg-white/20 p-6 rounded-3xl transition-all group">
+              <h4 className="font-bold text-lg mb-2">Our Team</h4>
+              <p className="text-white/60 text-sm">Meet the experts behind the scenes.</p>
+              <BiChevronRight className="mx-auto mt-4 group-hover:translate-x-2 transition-transform" />
+            </Link>
+            <Link to="/contact-us" className="bg-white/10 hover:bg-white/20 p-6 rounded-3xl transition-all group">
+              <h4 className="font-bold text-lg mb-2">Contact Us</h4>
+              <p className="text-white/60 text-sm">Get in touch with our support team.</p>
+              <BiChevronRight className="mx-auto mt-4 group-hover:translate-x-2 transition-transform" />
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

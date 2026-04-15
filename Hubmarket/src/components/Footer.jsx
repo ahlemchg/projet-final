@@ -29,27 +29,6 @@ const Footer = () => {
   return (
     <footer className="bg-[#001e2b] text-white pt-10 pb-6">
       <div className="container mx-auto px-4 lg:px-10">
-        <div className="flex flex-col lg:flex-row items-center justify-between mb-10 gap-6">
-          <div className="flex items-center gap-3">
-            <div className="bg-amber-400 p-1.5 rounded-sm">
-              <BiEnvelope size={20} className="text-[#001e2b]" />
-            </div>
-            <h2 className="text-lg md:text-xl font-bold">
-              Subscribe and get 20% discount.
-            </h2>
-          </div>
-          <div className="flex w-full lg:w-auto gap-0">
-            <input
-              type="email"
-              placeholder="E-mail address"
-              className="bg-white text-gray-800 px-4 py-2 rounded-l-full focus:outline-none w-full lg:w-72 text-sm"
-            />
-            <button className="bg-amber-400 text-[#001e2b] font-bold px-6 py-2 rounded-r-full hover:bg-amber-500 transition-colors whitespace-nowrap text-sm">
-              Subscribe
-            </button>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-10 border-t border-white/10 pt-10">
           <div className="lg:col-span-1">
             <h3 className="font-bold text-base mb-4">Hub Customer Care</h3>

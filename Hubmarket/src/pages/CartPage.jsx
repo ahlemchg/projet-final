@@ -1,11 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext.jsx";
 import { BiX, BiChevronRight, BiArrowBack } from "react-icons/bi";
+import { publicRequest } from "../requestMethods";
 
 const CartPage = () => {
-  const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount } =
-    useCart();
+  const {
+    cartItems,
+    removeFromCart,
+    updateQuantity,
+    clearCart,
+    subtotal,
+    cartTotal,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
+    discountAmount,
+    cartCount,
+  } = useCart();
+  const [couponInput, setCouponInput] = useState("");
+  const [couponError, setCouponError] = useState("");
+
+  const handleApplyCoupon = async () => {
+    if (!couponInput) return;
+    try {
+      setCouponError("");
+      const res = await publicRequest.get(
+        `coupons/validate/${couponInput.toUpperCase()}`,
+      );
+      applyCoupon(res.data);
+      setCouponInput("");
+    } catch (err) {
+      setCouponError(err.response?.data || "Invalid coupon code.");
+    }
+  };
 
   return (
     <div className="bg-[#f8f9fb] min-h-screen py-8">
@@ -93,7 +121,10 @@ const CartPage = () => {
                       <div className="flex items-center border border-gray-200 rounded-sm">
                         <button
                           onClick={() =>
-                            updateQuantity(item._id || item.id, item.quantity - 1)
+                            updateQuantity(
+                              item._id || item.id,
+                              item.quantity - 1,
+                            )
                           }
                           className="px-2 py-0.5 hover:bg-gray-50 transition-colors font-bold text-gray-500 text-sm"
                         >
@@ -104,7 +135,10 @@ const CartPage = () => {
                         </span>
                         <button
                           onClick={() =>
-                            updateQuantity(item._id || item.id, item.quantity + 1)
+                            updateQuantity(
+                              item._id || item.id,
+                              item.quantity + 1,
+                            )
                           }
                           className="px-2 py-0.5 hover:bg-gray-50 transition-colors font-bold text-gray-500 text-sm"
                         >
@@ -141,15 +175,27 @@ const CartPage = () => {
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              <div className="flex w-full md:w-auto border border-gray-200 rounded-sm overflow-hidden">
-                <input
-                  type="text"
-                  placeholder="Coupon code"
-                  className="px-4 py-2 text-[13px] focus:outline-none w-full md:w-56"
-                />
-                <button className="px-3 bg-white border-l border-gray-200 hover:bg-gray-50 transition-colors">
-                  <BiChevronRight size={20} />
-                </button>
+              <div className="flex flex-col">
+                <div className="flex w-full md:w-auto border border-gray-200 rounded-sm overflow-hidden">
+                  <input
+                    type="text"
+                    placeholder="Coupon code"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    className="px-4 py-2 text-[13px] focus:outline-none w-full md:w-56"
+                  />
+                  <button
+                    onClick={handleApplyCoupon}
+                    className="px-3 bg-white border-l border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    <BiChevronRight size={20} />
+                  </button>
+                </div>
+                {couponError && (
+                  <p className="text-red-500 text-[10px] mt-1 font-bold">
+                    {couponError}
+                  </p>
+                )}
               </div>
               <div className="flex gap-3 w-full md:w-auto">
                 <Link
@@ -175,9 +221,36 @@ const CartPage = () => {
                       Subtotal
                     </span>
                     <span className="text-[#001e2b] font-bold text-sm">
-                      ${cartTotal.toFixed(2)}
+                      ${subtotal.toFixed(2)}
                     </span>
                   </div>
+
+                  {appliedCoupon && (
+                    <div className="flex justify-between p-4 border-b border-gray-50 text-green-600">
+                      <span className="font-bold text-[12px] uppercase tracking-wider flex items-center gap-1">
+                        Discount ({appliedCoupon.code})
+                        <button
+                          onClick={removeCoupon}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <BiX size={16} />
+                        </button>
+                      </span>
+                      <span className="font-bold text-sm">
+                        -${discountAmount.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between p-4 border-b border-gray-50">
+                    <span className="text-gray-500 font-bold text-[12px] uppercase tracking-wider">
+                      Shipping
+                    </span>
+                    <span className="text-[#001e2b] font-bold text-sm">
+                      Calculated at next step
+                    </span>
+                  </div>
+
                   <div className="flex justify-between p-4 bg-gray-50/50">
                     <span className="text-gray-500 font-bold text-[12px] uppercase tracking-wider">
                       Total

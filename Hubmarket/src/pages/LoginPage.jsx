@@ -20,7 +20,7 @@ const LoginPage = () => {
       });
       localStorage.setItem("userInfo", JSON.stringify(res.data));
       alert("Login successful!");
-      navigate("/account");
+      window.location.href = "/account";
     } catch (error) {
       console.error("Login error:", error);
       alert(error.response?.data || "Login failed");

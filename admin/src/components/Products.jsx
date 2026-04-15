@@ -54,7 +54,8 @@ const Products = () => {
       }
     } catch (err) {
       console.error("Error saving product:", err);
-      alert("Network error: Could not connect to the server.");
+      const errorMsg = err.response?.data?.message || err.response?.data || err.message || "Unknown error";
+      alert(`Network error: Could not connect to the server.\n\nDetails: ${errorMsg}`);
       return false;
     }
   };

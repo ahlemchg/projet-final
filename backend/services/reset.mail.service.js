@@ -1,7 +1,7 @@
 const { sendSingleEmail } = require("./mail.core");
 
 function buildResetCodeTemplate(resetCode) {
-  const base = (process.env.CLIENT_URL || "https://hubrobe.vercel.app").replace(/\/$/, "");
+  const base = (process.env.CLIENT_URL || "http://localhost:5173").replace(/\/$/, "");
   return {
     subject: "Password Reset Code - hubrobe.",
     html: `

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import {
@@ -141,26 +142,37 @@ const HotDeals = () => {
                       }
                     />
                   </button>
-                  <button className="hover:text-black transition-colors">
+                  <Link
+                    to={`/product/${product._id || product.id}`}
+                    className="hover:text-black transition-colors"
+                  >
                     <BiShow size={14} />
-                  </button>
+                  </Link>
                 </div>
 
-                <div className="mb-3 h-36 w-full flex items-center justify-center relative mt-3">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="h-full w-full object-contain transform transition-transform duration-500 group-hover:scale-110"
-                  />
-                </div>
+                <Link
+                  to={`/product/${product._id || product.id}`}
+                  className="w-full flex flex-col items-center"
+                >
+                  <div className="mb-3 h-36 w-full flex items-center justify-center relative mt-3">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="h-full w-full object-contain transform transition-transform duration-500 group-hover:scale-110"
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    <p className="text-gray-400 text-[10px] mb-1 font-medium">
+                      {product.category}
+                    </p>
+                    <h3 className="text-[#001e2b] font-bold text-[13px] mb-2 line-clamp-2 min-h-[32px] leading-tight">
+                      {product.name}
+                    </h3>
+                  </div>
+                </Link>
 
                 <div className="w-full mt-auto">
-                  <p className="text-gray-400 text-[10px] mb-1 font-medium">
-                    {product.category}
-                  </p>
-                  <h3 className="text-[#001e2b] font-bold text-[13px] mb-2 line-clamp-2 min-h-[32px] leading-tight">
-                    {product.name}
-                  </h3>
                   <div className="flex items-center justify-center gap-2 mb-3">
                     <span className="text-gray-400 line-through text-[12px] font-medium">
                       {product.oldPrice}

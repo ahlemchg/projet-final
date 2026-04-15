@@ -22,12 +22,20 @@ import FaqPage from "./pages/FaqPage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import StaticContentPage from "./pages/StaticContentPage.jsx";
 import ShopPage from "./pages/ShopPage.jsx";
+import ShippingPolicy from "./pages/ShippingPolicy.jsx";
+import ReturnPolicy from "./pages/ReturnPolicy.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
+import OurStory from "./pages/OurStory.jsx";
+import OurTeam from "./pages/OurTeam.jsx";
+import ContactUs from "./pages/ContactUs.jsx";
+import CareersPage from "./pages/CareersPage.jsx";
+import AdminMessages from "./pages/AdminMessages.jsx";
 
 function App() {
   return (
-    <CartProvider>
-      <WishlistProvider>
-        <Router>
+    <Router>
+      <CartProvider>
+        <WishlistProvider>
           <div className="min-h-screen bg-white flex flex-col">
             <Navbar />
             <main className="flex-grow">
@@ -46,61 +54,17 @@ function App() {
                 <Route path="/wishlist" element={<WishlistPage />} />
                 <Route path="/product/:id" element={<SingleProductPage />} />
                 <Route path="/faq" element={<FaqPage />} />
+                <Route path="/help-center" element={<FaqPage />} />
                 <Route path="/about" element={<AboutPage />} />
-                <Route
-                  path="/help-center"
-                  element={
-                    <StaticContentPage
-                      title="Help Center"
-                      description="Find help articles, order support, and quick answers for your shopping experience on Hubmarket."
-                    />
-                  }
-                />
-                <Route
-                  path="/shipping-policy"
-                  element={
-                    <StaticContentPage
-                      title="Shipping Policy"
-                      description="Orders are processed quickly and delivered according to your region and selected delivery option."
-                    />
-                  }
-                />
-                <Route
-                  path="/return-policy"
-                  element={
-                    <StaticContentPage
-                      title="Return Policy"
-                      description="You can request a return within the allowed return window if your item is eligible and in valid condition."
-                    />
-                  }
-                />
-                <Route
-                  path="/our-story"
-                  element={
-                    <StaticContentPage
-                      title="Our Story"
-                      description="Learn how Hubmarket started and how we continue building a modern marketplace focused on quality and service."
-                    />
-                  }
-                />
-                <Route
-                  path="/our-team"
-                  element={
-                    <StaticContentPage
-                      title="Our Team"
-                      description="Meet the people behind Hubmarket: product experts, support specialists, and engineers working for better shopping."
-                    />
-                  }
-                />
-                <Route
-                  path="/contact-us"
-                  element={
-                    <StaticContentPage
-                      title="Contact Us"
-                      description="Reach out to us for assistance with your orders, products, account, or any other questions."
-                    />
-                  }
-                />
+                <Route path="/about-us" element={<AboutPage />} />
+                <Route path="/shipping-policy" element={<ShippingPolicy />} />
+                <Route path="/return-policy" element={<ReturnPolicy />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/our-story" element={<OurStory />} />
+                <Route path="/our-team" element={<OurTeam />} />
+                <Route path="/contact-us" element={<ContactUs />} />
+                <Route path="/careers" element={<CareersPage />} />
+                <Route path="/admin/messages" element={<AdminMessages />} />
                 <Route
                   path="/track-order"
                   element={
@@ -125,15 +89,6 @@ function App() {
                     <StaticContentPage
                       title="Wishlists"
                       description="Save your favorite products and manage your personal wishlist with ease."
-                    />
-                  }
-                />
-                <Route
-                  path="/privacy-policy"
-                  element={
-                    <StaticContentPage
-                      title="Privacy Policy"
-                      description="Read how Hubmarket handles and protects your personal data."
                     />
                   }
                 />
@@ -173,31 +128,13 @@ function App() {
                     />
                   }
                 />
-                <Route
-                  path="/careers"
-                  element={
-                    <StaticContentPage
-                      title="Careers"
-                      description="Join Hubmarket and help us create better commerce experiences."
-                    />
-                  }
-                />
-                <Route
-                  path="/about-us"
-                  element={
-                    <StaticContentPage
-                      title="About Us"
-                      description="Get to know our mission, values, and long-term vision at Hubmarket."
-                    />
-                  }
-                />
               </Routes>
             </main>
             <Footer />
           </div>
-        </Router>
-      </WishlistProvider>
-    </CartProvider>
+        </WishlistProvider>
+      </CartProvider>
+    </Router>
   );
 }
 

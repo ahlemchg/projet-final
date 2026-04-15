@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -134,7 +135,6 @@ const Features = () => {
 
   return (
     <div className="bg-white min-h-screen">
-      
       <div className="container mx-auto px-4 lg:px-10 py-8">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
@@ -159,9 +159,7 @@ const Features = () => {
 
       <div className="container mx-auto px-4 lg:px-10 pb-20">
         <div className="flex flex-col lg:flex-row gap-12">
-          
           <aside className="hidden lg:block w-full lg:w-[280px] flex-shrink-0 space-y-10">
-            
             <div>
               <h3 className="text-[13px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
                 Product Categories
@@ -220,7 +218,6 @@ const Features = () => {
               </ul>
             </div>
 
-            
             <div>
               <h3 className="text-[13px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
                 Filter by Colors
@@ -250,7 +247,6 @@ const Features = () => {
               </div>
             </div>
 
-            
             <div>
               <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
                 Price
@@ -281,7 +277,6 @@ const Features = () => {
               </div>
             </div>
 
-            
             <div>
               <h3 className="text-[13px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
                 Filter by Brand
@@ -317,7 +312,6 @@ const Features = () => {
               </div>
             </div>
 
-            
             <div className="relative">
               <h3 className="text-[11px] font-extrabold uppercase tracking-widest text-[#001e2b] mb-6 pb-2 border-b-2 border-gray-100 w-fit">
                 New Arrivals
@@ -340,8 +334,9 @@ const Features = () => {
                         {products
                           .slice(slideIdx * 3, (slideIdx + 1) * 3)
                           .map((item, i) => (
-                            <div
+                            <Link
                               key={i}
+                              to={`/product/${item._id || item.id}`}
                               className="flex gap-4 group cursor-pointer"
                             >
                               <div className="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0">
@@ -355,10 +350,12 @@ const Features = () => {
                                   {item.name}
                                 </h4>
                                 <p className="text-[12px] font-bold text-gray-400">
-                                  ${item.price.toFixed(2)}
+                                  {typeof item.price === "number"
+                                    ? `$${item.price.toFixed(2)}`
+                                    : item.price}
                                 </p>
                               </div>
-                            </div>
+                            </Link>
                           ))}
                       </div>
                     </SwiperSlide>
@@ -377,7 +374,6 @@ const Features = () => {
             </div>
           </aside>
 
-          
           <main className="flex-grow">
             <div className="lg:hidden mb-6">
               <button
@@ -388,7 +384,7 @@ const Features = () => {
                 Filtres
               </button>
             </div>
-            
+
             <div className="relative w-full h-[200px] md:h-[300px] rounded-2xl overflow-hidden mb-8 md:mb-12 group">
               <img
                 src="/home1.jpg"
@@ -408,7 +404,6 @@ const Features = () => {
                 </button>
               </div>
 
-              
               <button className="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white/10 hover:bg-white text-white hover:text-[#001e2b] flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 backdrop-blur-sm">
                 <BiChevronLeft size={24} />
               </button>
@@ -417,7 +412,6 @@ const Features = () => {
               </button>
             </div>
 
-            
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10 border-b border-gray-100 pb-6">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-gray-400 border-r border-gray-200 pr-4">
@@ -446,7 +440,6 @@ const Features = () => {
               </div>
             </div>
 
-            
             {filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
                 {filteredProducts.map((product) => (
@@ -454,7 +447,6 @@ const Features = () => {
                     key={product.id}
                     className="group relative bg-white border border-gray-100 rounded-lg p-6 hover:shadow-2xl transition-all duration-500"
                   >
-                    
                     {product.sale && (
                       <div className="absolute top-4 left-4 z-10">
                         <span className="bg-[#ff3b30] text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase">
@@ -463,58 +455,67 @@ const Features = () => {
                       </div>
                     )}
 
-                    
                     <div className="absolute top-4 right-4 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
                       <button className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400] transition-all">
                         <BiTransfer size={18} />
                       </button>
                       <button
                         onClick={() => addToWishlist(product)}
-                        className={`w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center transition-all ${isInWishlist(product.id) ? "text-[#ff3b30] bg-red-50" : "text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400]"}`}
+                        className={`w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center transition-all ${isInWishlist(product._id || product.id) ? "text-[#ff3b30] bg-red-50" : "text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400]"}`}
                       >
                         <BiHeart
                           size={18}
                           className={
-                            isInWishlist(product.id) ? "fill-current" : ""
+                            isInWishlist(product._id || product.id)
+                              ? "fill-current"
+                              : ""
                           }
                         />
                       </button>
-                      <button className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400] transition-all">
+                      <Link
+                        to={`/product/${product._id || product.id}`}
+                        className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400] transition-all"
+                      >
                         <BiShow size={18} />
-                      </button>
+                      </Link>
                     </div>
 
-                    
-                    <div className="aspect-square mb-6 overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
-                      />
-                    </div>
-
-                    
-                    <div className="text-center">
-                      <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-2">
-                        {product.category}
-                      </p>
-                      <h3 className="text-[14px] font-extrabold text-[#001e2b] mb-2 hover:text-[#004a99] transition-colors cursor-pointer line-clamp-2 min-h-[40px]">
-                        {product.name}
-                      </h3>
-                      <div className="flex items-center justify-center gap-2 mb-6">
-                        {product.oldPrice && (
-                          <span className="text-[13px] font-bold text-gray-300 line-through">
-                            ${product.oldPrice.toFixed(2)}
-                          </span>
-                        )}
-                        <span
-                          className={`text-[14px] font-extrabold ${product.oldPrice ? "text-[#ff3b30]" : "text-[#001e2b]"}`}
-                        >
-                          {typeof product.price === "number"
-                            ? `$${product.price.toFixed(2)}`
-                            : `$${product.price}`}
-                        </span>
+                    <Link to={`/product/${product._id || product.id}`}>
+                      <div className="aspect-square mb-6 overflow-hidden">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
+                        />
                       </div>
+
+                      <div className="text-center">
+                        <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-2">
+                          {product.category}
+                        </p>
+                        <h3 className="text-[14px] font-extrabold text-[#001e2b] mb-2 hover:text-[#004a99] transition-colors cursor-pointer line-clamp-2 min-h-[40px]">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-center justify-center gap-2 mb-6">
+                          {product.oldPrice && (
+                            <span className="text-[13px] font-bold text-gray-300 line-through">
+                              {typeof product.oldPrice === "number"
+                                ? `$${product.oldPrice.toFixed(2)}`
+                                : product.oldPrice}
+                            </span>
+                          )}
+                          <span
+                            className={`text-[14px] font-extrabold ${product.oldPrice ? "text-[#ff3b30]" : "text-[#001e2b]"}`}
+                          >
+                            {typeof product.price === "number"
+                              ? `$${product.price.toFixed(2)}`
+                              : product.price}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+
+                    <div className="px-6 pb-6">
                       <button
                         onClick={() => addToCart(product)}
                         className="w-full border-2 border-[#001e2b] text-[#001e2b] hover:bg-[#001e2b] hover:text-white py-2.5 rounded-full font-extrabold text-[13px] transition-all"
@@ -548,7 +549,9 @@ const Features = () => {
           <div
             onClick={() => setIsMobileFilterOpen(false)}
             className={`lg:hidden fixed inset-0 bg-black/40 z-[120] transition-opacity ${
-              isMobileFilterOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+              isMobileFilterOpen
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none"
             }`}
           />
           <aside
@@ -595,7 +598,9 @@ const Features = () => {
                   onChange={(e) => setPriceRange(parseInt(e.target.value))}
                   className="w-full accent-[#001e2b]"
                 />
-                <p className="text-[12px] text-gray-500 mt-2">$0 - ${priceRange}</p>
+                <p className="text-[12px] text-gray-500 mt-2">
+                  $0 - ${priceRange}
+                </p>
               </div>
               <div>
                 <h4 className="text-[12px] font-extrabold text-[#001e2b] mb-3 uppercase">

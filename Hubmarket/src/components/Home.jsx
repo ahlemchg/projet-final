@@ -19,7 +19,6 @@ const Home = () => {
     {
       id: 1,
       title: "Samsung Galaxy Z Flip",
-      subtitle: "Subscribe and get 20% off your first purchase.",
       price: "Starting From £699",
       image: "/slid1.jpg",
       bgColor: "bg-[#f8f9fb]",
@@ -29,7 +28,6 @@ const Home = () => {
     {
       id: 2,
       title: "13-inch MacBook Air Touch ID",
-      subtitle: "Subscribe and get 20% off your first purchase.",
       price: "Starting From £699",
       image: "/slide2.jpg",
       bgColor: "bg-[#f8f9fb]",
@@ -106,9 +104,6 @@ const Home = () => {
                       >
                         {slide.title}
                       </h2>
-                      <p className="text-gray-500 mb-3 md:mb-5 text-xs md:text-base font-medium">
-                        {slide.subtitle}
-                      </p>
                       <button
                         className={`${slide.btnColor} hover:bg-[#001e2b] ${
                           slide.id === 1 ? "text-[#001e2b]" : "text-white"
@@ -170,7 +165,7 @@ const Home = () => {
           </div>
         </div>
       </div>
-      <div className="container mx-auto px-4 lg:px-10 py-8">
+      <div className="container mx-auto px-4 lg:px-10 py-8 hidden sm:block">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-4">
           {features.map((feature, index) => (
             <div

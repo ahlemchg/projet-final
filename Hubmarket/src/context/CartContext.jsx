@@ -27,7 +27,10 @@ export const CartProvider = ({ children }) => {
       ...product,
       id,
       name: product?.name || product?.title || "Product",
-      image: product?.image || (Array.isArray(product?.img) ? product.img[0] : product?.img) || "/product_1.jpg",
+      image:
+        product?.image ||
+        (Array.isArray(product?.img) ? product.img[0] : product?.img) ||
+        "/product_1.jpg",
       price: normalizePrice(product?.price),
     };
   };
@@ -38,10 +41,27 @@ export const CartProvider = ({ children }) => {
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toast, setToast] = useState({ isOpen: false, message: "" });
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
 
   useEffect(() => {
     localStorage.setItem("hubmarket_cart", JSON.stringify(cartItems));
   }, [cartItems]);
+
+  const applyCoupon = (coupon) => {
+    setAppliedCoupon(coupon);
+    setToast({
+      isOpen: true,
+      message: `Coupon "${coupon.code}" applied! You got ${coupon.discount}% off.`,
+    });
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setToast({
+      isOpen: true,
+      message: "Coupon removed.",
+    });
+  };
 
   const addToCart = (product) => {
     const userInfo = JSON.parse(localStorage.getItem("userInfo") || "null");
@@ -77,7 +97,9 @@ export const CartProvider = ({ children }) => {
 
   const removeFromCart = (productId) => {
     const itemToRemove = cartItems.find((item) => item.id === productId);
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== productId));
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => item.id !== productId),
+    );
     if (itemToRemove) {
       setToast({
         isOpen: true,
@@ -101,9 +123,14 @@ export const CartProvider = ({ children }) => {
   };
 
   const cartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-  const cartTotal = cartItems.reduce((acc, item) => {
+  const subtotal = cartItems.reduce((acc, item) => {
     return acc + normalizePrice(item.price) * item.quantity;
   }, 0);
+
+  const discountAmount = appliedCoupon
+    ? (subtotal * appliedCoupon.discount) / 100
+    : 0;
+  const cartTotal = subtotal - discountAmount;
 
   return (
     <CartContext.Provider
@@ -115,6 +142,11 @@ export const CartProvider = ({ children }) => {
         clearCart,
         cartCount,
         cartTotal,
+        subtotal,
+        appliedCoupon,
+        applyCoupon,
+        removeCoupon,
+        discountAmount,
         isCartOpen,
         setIsCartOpen,
       }}

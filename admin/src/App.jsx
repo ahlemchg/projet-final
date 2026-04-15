@@ -11,7 +11,6 @@ import Orders from "./components/Orders.jsx";
 import Users from "./components/Users.jsx";
 import Analytics from "./components/Analytics.jsx";
 import Coupons from "./components/Coupons.jsx";
-import Newsletters from "./components/Newsletters.jsx";
 import Login from "./components/Login.jsx";
 
 const ProtectedRoute = ({ children }) => {
@@ -74,14 +73,6 @@ function App() {
           element={
             <ProtectedRoute>
               <Coupons />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/newsletters"
-          element={
-            <ProtectedRoute>
-              <Newsletters />
             </ProtectedRoute>
           }
         />

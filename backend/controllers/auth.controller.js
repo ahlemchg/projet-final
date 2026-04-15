@@ -159,6 +159,9 @@ function escapeRegex(s) {
 // LOGIN — accepts username OR email (UI says "Username or email")
 const login = async (req, res) => {
   try {
+    if (!req.body) {
+      return res.status(400).json("Request body is missing!");
+    }
     const identifier = (req.body.username || "").trim();
     const plainPassword = req.body.password;
     console.log("Login attempt for:", identifier);
@@ -179,6 +182,8 @@ const login = async (req, res) => {
       return res.status(401).json("Wrong credentials!");
     }
 
+    console.log("User found:", user.username, "isAdmin:", user.isAdmin);
+
     if (!process.env.PASS_SEC) {
       console.error("PASS_SEC is not defined!");
       return res.status(500).json("Server configuration error.");
@@ -191,6 +196,8 @@ const login = async (req, res) => {
       console.log("Invalid password for:", identifier);
       return res.status(401).json("Wrong credentials!");
     }
+
+    console.log("Login successful for:", identifier, "isAdmin:", user.isAdmin);
 
     if (!process.env.JWT_SEC) {
       console.error("JWT_SEC is not defined!");
@@ -209,6 +216,7 @@ const login = async (req, res) => {
     const { password, ...others } = user._doc;
     res.status(200).json({ ...others, accessToken });
   } catch (err) {
+    console.error("Login controller error:", err);
     res.status(500).json(err.message || "An error occurred.");
   }
 };

@@ -56,11 +56,6 @@ const Navbar = () => {
     { to: "/users", icon: <BiUser size={18} />, label: "Users" },
     { to: "/analytics", icon: <BiStats size={18} />, label: "Analytics" },
     { to: "/coupons", icon: <BiGift size={18} />, label: "Coupons" },
-    {
-      to: "/newsletters",
-      icon: <BiEnvelope size={18} />,
-      label: "Newsletters",
-    },
   ];
 
   return (

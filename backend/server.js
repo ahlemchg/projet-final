@@ -19,12 +19,17 @@ const faqRoute = require("./routes/faq.routes");
 const couponRoute = require("./routes/coupon.routes");
 const newsletterRoute = require("./routes/newsletter.routes");
 const paymentRoute = require("./routes/payment.routes");
+const contactRoute = require("./routes/contact.routes");
 
 // Initialize Admin User
 const initAdmin = async () => {
   try {
     const adminUsername = "admin";
     const adminEmail = "admin@hubmarket.com";
+    console.log(
+      "Initializing admin with PASS_SEC starting with:",
+      process.env.PASS_SEC?.substring(0, 3),
+    );
     const encryptedPassword = CryptoJS.AES.encrypt(
       "Admin123!",
       process.env.PASS_SEC,
@@ -47,6 +52,7 @@ const initAdmin = async () => {
       admin.username = adminUsername;
       admin.email = adminEmail;
       admin.password = encryptedPassword;
+      admin.isAdmin = true; // Ensure it's still true
       await admin.save();
       console.log(`Admin account updated: ${adminUsername} / Admin123!`);
     }
@@ -77,18 +83,37 @@ const startServer = async () => {
 // Middlewares
 app.use(
   cors({
-    origin: [
-      "https://adminmarket-delta.vercel.app",
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "http://localhost:4173",
-    ],
+    origin: true,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "token"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "token",
+      "Accept",
+      "X-Requested-With",
+    ],
   }),
 );
-app.use(express.json());
+// No need for app.options('*', cors()) as cors() middleware handles it if placed first.
+
+// Body Parser with JSON Syntax Error Handler
+app.use((req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return next();
+  }
+  express.json({ limit: "50mb" })(req, res, (err) => {
+    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+      console.error("JSON Syntax Error:", err.message);
+      return res
+        .status(400)
+        .json({ message: "Invalid JSON format in request body." });
+    }
+    next();
+  });
+});
+
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // API Endpoints
 app.use("/api/auth", authRoute);
@@ -102,7 +127,20 @@ app.use("/api/faq", faqRoute);
 app.use("/api/coupons", couponRoute);
 app.use("/api/newsletter", newsletterRoute);
 app.use("/api/payments", paymentRoute);
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+app.use("/api/contact", contactRoute);
+
+// Catch-all 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: "Endpoint not found." });
+});
+
+// Final Error Handler
+app.use((err, req, res, next) => {
+  console.error("Unhandled Error:", err);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err : {},
+  });
+});
 
 startServer();

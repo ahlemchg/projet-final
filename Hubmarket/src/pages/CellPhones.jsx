@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -294,8 +295,9 @@ const CellPhones = () => {
                         {products
                           .slice(slideIdx * 3, (slideIdx + 1) * 3)
                           .map((item, i) => (
-                            <div
+                            <Link
                               key={i}
+                              to={`/product/${item._id || item.id}`}
                               className="flex gap-4 group cursor-pointer"
                             >
                               <div className="w-16 h-16 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0">
@@ -314,7 +316,7 @@ const CellPhones = () => {
                                     : item.price}
                                 </p>
                               </div>
-                            </div>
+                            </Link>
                           ))}
                       </div>
                     </SwiperSlide>
@@ -438,42 +440,50 @@ const CellPhones = () => {
                           }
                         />
                       </button>
-                      <button className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400] transition-all">
+                      <Link
+                        to={`/product/${product._id || product.id}`}
+                        className="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-gray-400 hover:text-[#001e2b] hover:bg-[#ffb400] transition-all"
+                      >
                         <BiShow size={18} />
-                      </button>
+                      </Link>
                     </div>
 
-                    <div className="aspect-square mb-6 overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
-                      />
-                    </div>
-
-                    <div className="text-center">
-                      <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-2">
-                        {product.category}
-                      </p>
-                      <h3 className="text-[14px] font-extrabold text-[#001e2b] mb-2 hover:text-[#004a99] transition-colors cursor-pointer line-clamp-2 min-h-[40px]">
-                        {product.name}
-                      </h3>
-                      <div className="flex items-center justify-center gap-2 mb-6">
-                        {product.oldPrice && (
-                          <span className="text-[13px] font-bold text-gray-300 line-through">
-                            {typeof product.oldPrice === "number"
-                              ? `$${product.oldPrice.toFixed(2)}`
-                              : product.oldPrice}
-                          </span>
-                        )}
-                        <span
-                          className={`text-[14px] font-extrabold ${product.oldPrice ? "text-[#ff3b30]" : "text-[#001e2b]"}`}
-                        >
-                          {typeof product.price === "number"
-                            ? `$${product.price.toFixed(2)}`
-                            : product.price}
-                        </span>
+                    <Link to={`/product/${product._id || product.id}`}>
+                      <div className="aspect-square mb-6 overflow-hidden">
+                        <img
+                          src={product.image}
+                          alt={product.name}
+                          className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110"
+                        />
                       </div>
+
+                      <div className="text-center">
+                        <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest mb-2">
+                          {product.category}
+                        </p>
+                        <h3 className="text-[14px] font-extrabold text-[#001e2b] mb-2 hover:text-[#004a99] transition-colors cursor-pointer line-clamp-2 min-h-[40px]">
+                          {product.name}
+                        </h3>
+                        <div className="flex items-center justify-center gap-2 mb-6">
+                          {product.oldPrice && (
+                            <span className="text-[13px] font-bold text-gray-300 line-through">
+                              {typeof product.oldPrice === "number"
+                                ? `$${product.oldPrice.toFixed(2)}`
+                                : product.oldPrice}
+                            </span>
+                          )}
+                          <span
+                            className={`text-[14px] font-extrabold ${product.oldPrice ? "text-[#ff3b30]" : "text-[#001e2b]"}`}
+                          >
+                            {typeof product.price === "number"
+                              ? `$${product.price.toFixed(2)}`
+                              : product.price}
+                          </span>
+                        </div>
+                      </div>
+                    </Link>
+
+                    <div className="px-6 pb-6">
                       <button
                         onClick={() => addToCart(product)}
                         className="w-full border-2 border-[#001e2b] text-[#001e2b] hover:bg-[#001e2b] hover:text-white py-2.5 rounded-full font-extrabold text-[13px] transition-all"
@@ -507,7 +517,9 @@ const CellPhones = () => {
           <div
             onClick={() => setIsMobileFilterOpen(false)}
             className={`lg:hidden fixed inset-0 bg-black/40 z-[120] transition-opacity ${
-              isMobileFilterOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+              isMobileFilterOpen
+                ? "opacity-100"
+                : "opacity-0 pointer-events-none"
             }`}
           />
           <aside
@@ -554,7 +566,9 @@ const CellPhones = () => {
                   onChange={(e) => setPriceRange(parseInt(e.target.value))}
                   className="w-full accent-[#001e2b]"
                 />
-                <p className="text-[12px] text-gray-500 mt-2">$0 - ${priceRange}</p>
+                <p className="text-[12px] text-gray-500 mt-2">
+                  $0 - ${priceRange}
+                </p>
               </div>
               <div>
                 <h4 className="text-[12px] font-extrabold text-[#001e2b] mb-3 uppercase">

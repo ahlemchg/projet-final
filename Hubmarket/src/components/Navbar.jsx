@@ -116,6 +116,16 @@ const Navbar = () => {
             <BiUser size={20} />
             <span>{userInfo ? userInfo.username : "Account"}</span>
           </Link>
+
+          {userInfo?.isAdmin && (
+            <Link
+              to="/admin/messages"
+              className="flex items-center gap-1.5 bg-[#ffb400] text-[#001e2b] px-3 py-1.5 rounded-full hover:bg-white transition-all animate-pulse shadow-lg font-black text-[10px] uppercase tracking-tighter"
+            >
+              <BiEnvelope size={16} />
+              <span>Admin: Messages</span>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -228,7 +238,7 @@ const Navbar = () => {
 
               <div className="py-4 relative group">
                 <Link
-                  to="/our-story"
+                  to="/about"
                   className="hover:text-amber-400 transition-colors flex items-center gap-1"
                 >
                   About
@@ -253,6 +263,20 @@ const Navbar = () => {
                   >
                     Contact Us
                   </Link>
+                  <Link
+                    to="/careers"
+                    className="block px-5 py-2 text-[12px] hover:bg-gray-50 hover:text-[#004a99] transition-colors"
+                  >
+                    Careers
+                  </Link>
+                  {userInfo?.isAdmin && (
+                    <Link
+                      to="/admin/messages"
+                      className="block px-5 py-2 text-[12px] bg-blue-50 text-[#004a99] hover:bg-blue-100 font-bold transition-colors border-t border-blue-100"
+                    >
+                      Admin: Messages
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -358,12 +382,31 @@ const Navbar = () => {
               FAQ
             </Link>
             <Link
-              to="/our-story"
+              to="/about"
               onClick={() => setIsMenuOpen(false)}
               className="px-6 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer text-gray-800 font-medium"
             >
               About
             </Link>
+            <Link
+              to="/careers"
+              onClick={() => setIsMenuOpen(false)}
+              className="px-6 py-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer text-gray-800 font-medium"
+            >
+              Careers
+            </Link>
+            {userInfo?.isAdmin && (
+              <Link
+                to="/admin/messages"
+                onClick={() => setIsMenuOpen(false)}
+                className="px-6 py-4 border-b border-gray-100 bg-[#ffb400]/20 hover:bg-[#ffb400]/30 cursor-pointer text-[#001e2b] font-black flex items-center justify-between"
+              >
+                <span>ADMIN: MESSAGES</span>
+                <div className="bg-[#ffb400] text-[#001e2b] px-2 py-0.5 rounded text-[10px]">
+                  New
+                </div>
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Toast from "../components/Toast.jsx";
 
 const WishlistContext = createContext();
@@ -12,6 +13,7 @@ export const useWishlist = () => {
 };
 
 export const WishlistProvider = ({ children }) => {
+  const navigate = useNavigate();
   const normalizePrice = (value) => {
     if (typeof value === "number") return value;
     if (typeof value === "string") {
@@ -27,7 +29,10 @@ export const WishlistProvider = ({ children }) => {
       ...product,
       id,
       name: product?.name || product?.title || "Product",
-      image: product?.image || (Array.isArray(product?.img) ? product.img[0] : product?.img) || "/product_1.jpg",
+      image:
+        product?.image ||
+        (Array.isArray(product?.img) ? product.img[0] : product?.img) ||
+        "/product_1.jpg",
       price: normalizePrice(product?.price),
     };
   };
@@ -48,8 +53,11 @@ export const WishlistProvider = ({ children }) => {
     if (!isAuthenticated) {
       setToast({
         isOpen: true,
-        message: "Please login to use wishlist.",
+        message: "Redirection vers la page de connexion...",
       });
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
       return;
     }
 
@@ -67,7 +75,9 @@ export const WishlistProvider = ({ children }) => {
   };
 
   const removeFromWishlist = (productId) => {
-    setWishlistItems((prevItems) => prevItems.filter((item) => item.id !== productId));
+    setWishlistItems((prevItems) =>
+      prevItems.filter((item) => item.id !== productId),
+    );
   };
 
   const isInWishlist = (productId) => {

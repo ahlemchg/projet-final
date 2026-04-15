@@ -49,37 +49,6 @@ const faqData = [
       },
     ],
   },
-  {
-    id: "warranty",
-    title: "Warranty",
-    items: [
-      {
-        q: "Do products have a warranty?",
-        a: "All our products come with a 1-year limited warranty.",
-      },
-    ],
-  },
-  {
-    id: "international-sales",
-    title: "International Sales",
-    items: [
-      {
-        q: "Do you offer international shipping?",
-        a: "Yes, we ship to over 50 countries worldwide.",
-      },
-    ],
-  },
-  {
-    id: "contact-us",
-    title: "Contact Us",
-    items: [
-      {
-        q: "How can I reach customer support?",
-        a: "You can reach us via email at support@hubshop.com or via WhatsApp.",
-      },
-    ],
-  },
 ];
 
 module.exports = faqData;
-
