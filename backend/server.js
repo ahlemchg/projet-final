@@ -24,15 +24,23 @@ const contactRoute = require("./routes/contact.routes");
 // Initialize Admin User
 const initAdmin = async () => {
   try {
+    const passSec = process.env.PASS_SEC;
+    if (!passSec) {
+      console.warn(
+        "WARNING: PASS_SEC is not defined. Admin initialization skipped to prevent crash.",
+      );
+      return;
+    }
+
     const adminUsername = "admin";
     const adminEmail = "admin@hubmarket.com";
     console.log(
       "Initializing admin with PASS_SEC starting with:",
-      process.env.PASS_SEC?.substring(0, 3),
+      passSec.substring(0, 3),
     );
     const encryptedPassword = CryptoJS.AES.encrypt(
       "Admin123!",
-      process.env.PASS_SEC,
+      passSec,
     ).toString();
 
     // Check if any admin exists
@@ -64,6 +72,20 @@ const initAdmin = async () => {
 // Start Server function
 const startServer = async () => {
   try {
+    // Check critical env variables
+    const criticalEnv = ["MONGODB_URI", "JWT_SEC", "PASS_SEC"];
+    const missingEnv = criticalEnv.filter((env) => !process.env[env]);
+
+    if (missingEnv.length > 0) {
+      console.error(
+        `FATAL ERROR: Missing critical environment variables: ${missingEnv.join(", ")}`,
+      );
+      // In production, we might want to exit, but in development, we can just warn
+      if (process.env.NODE_ENV === "production") {
+        process.exit(1);
+      }
+    }
+
     // Database Connection
     await connectDB();
 
