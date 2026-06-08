@@ -36,10 +36,41 @@ const Products = () => {
   const handleAddOrUpdateProduct = async (productData, id) => {
     try {
       let res;
+      // Convert to FormData if there are local files
+      let dataToSubmit = productData;
+      const hasLocalFiles = productData.localFiles && productData.localFiles.length > 0;
+
+      if (hasLocalFiles) {
+        const formData = new FormData();
+        // Append basic fields
+        Object.keys(productData).forEach((key) => {
+          if (key !== "localFiles" && key !== "images") {
+            if (Array.isArray(productData[key])) {
+              productData[key].forEach((val) => formData.append(`${key}[]`, val));
+            } else {
+              formData.append(key, productData[key]);
+            }
+          }
+        });
+        // Append existing image URLs
+        if (productData.images) {
+          productData.images.forEach((url) => formData.append("img[]", url));
+        }
+        // Append local files
+        productData.localFiles.forEach((file) => {
+          formData.append("images", file);
+        });
+        dataToSubmit = formData;
+      }
+
       if (id) {
-        res = await userRequest.put(`products/${id}`, productData);
+        res = await userRequest.put(`products/${id}`, dataToSubmit, {
+          headers: hasLocalFiles ? { "Content-Type": "multipart/form-data" } : {},
+        });
       } else {
-        res = await userRequest.post("products", productData);
+        res = await userRequest.post("products", dataToSubmit, {
+          headers: hasLocalFiles ? { "Content-Type": "multipart/form-data" } : {},
+        });
       }
 
       if (res.status === 200) {

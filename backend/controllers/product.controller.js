@@ -26,23 +26,53 @@ const syncFields = (data) => {
 
 // CREATE
 const createProduct = async (req, res) => {
-  console.log("Create product request received:", JSON.stringify(req.body).substring(0, 200) + "...");
-  const syncedData = syncFields(req.body);
-  const newProduct = new Product(syncedData);
   try {
+    console.log("Create product request received");
+    let productData = req.body;
+
+    // Handle uploaded files
+    if (req.files && req.files.length > 0) {
+      const fileUrls = req.files.map((file) => `/uploads/products/${file.filename}`);
+      // Merge with existing images if any
+      const existingImages = Array.isArray(productData.img)
+        ? productData.img
+        : productData.image
+          ? [productData.image]
+          : [];
+      productData.img = [...existingImages, ...fileUrls];
+    }
+
+    const syncedData = syncFields(productData);
+    const newProduct = new Product(syncedData);
     const savedProduct = await newProduct.save();
     console.log("Product saved successfully:", savedProduct._id);
     res.status(200).json(savedProduct);
   } catch (err) {
     console.error("Error creating product:", err);
-    res.status(500).json({ message: err.message || "An error occurred during product creation.", error: err });
+    res.status(500).json({
+      message: err.message || "An error occurred during product creation.",
+      error: err,
+    });
   }
 };
 
 // UPDATE
 const updateProduct = async (req, res) => {
-  const syncedData = syncFields(req.body);
   try {
+    let productData = req.body;
+
+    // Handle uploaded files
+    if (req.files && req.files.length > 0) {
+      const fileUrls = req.files.map((file) => `/uploads/products/${file.filename}`);
+      const existingImages = Array.isArray(productData.img)
+        ? productData.img
+        : productData.image
+          ? [productData.image]
+          : [];
+      productData.img = [...existingImages, ...fileUrls];
+    }
+
+    const syncedData = syncFields(productData);
     const updatedProduct = await Product.findByIdAndUpdate(
       req.params.id,
       { $set: syncedData },

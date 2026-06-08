@@ -10,9 +10,10 @@ const {
   rateProduct,
 } = require("../controllers/product.controller");
 const { verifyToken, verifyTokenAndAdmin } = require("../middlewares/verifyToken");
+const upload = require("../middlewares/upload");
 
-router.post("/", verifyTokenAndAdmin, createProduct);
-router.put("/:id", verifyTokenAndAdmin, updateProduct);
+router.post("/", verifyTokenAndAdmin, upload.array("images", 10), createProduct);
+router.put("/:id", verifyTokenAndAdmin, upload.array("images", 10), updateProduct);
 router.patch("/:id/status", toggleStatus);
 router.delete("/:id", verifyTokenAndAdmin, deleteProduct);
 router.get("/stats", getProductStats);

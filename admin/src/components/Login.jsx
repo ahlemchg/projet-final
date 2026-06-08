@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BiLoaderAlt, BiLockAlt, BiUser } from "react-icons/bi";
 import { publicRequest } from "../requestMethods";
@@ -9,6 +9,14 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const adminToken = localStorage.getItem("adminToken");
+    const adminUser = JSON.parse(localStorage.getItem("adminUser") || "null");
+    if (adminToken && adminUser?.isAdmin) {
+      navigate("/dashboard");
+    }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,7 +30,7 @@ const Login = () => {
       if (res.data.isAdmin) {
         localStorage.setItem("adminToken", res.data.accessToken);
         localStorage.setItem("adminUser", JSON.stringify(res.data));
-        navigate("/");
+        navigate("/dashboard");
       } else {
         setError("You are not authorized to access the admin panel.");
       }

@@ -50,7 +50,7 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { to: "/", icon: <BiGridAlt size={18} />, label: "Dashboard" },
+    { to: "/dashboard", icon: <BiGridAlt size={18} />, label: "Dashboard" },
     { to: "/products", icon: <BiPackage size={18} />, label: "Products" },
     { to: "/orders", icon: <BiCartAlt size={18} />, label: "Orders" },
     { to: "/users", icon: <BiUser size={18} />, label: "Users" },
@@ -71,7 +71,7 @@ const Navbar = () => {
           </button>
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link to="/dashboard" className="flex items-center gap-2 group">
             <div className="relative w-6 h-4 group-hover:scale-110 transition-transform">
               <div className="absolute top-0 left-0 w-4 h-4 bg-blue-500 rounded-full opacity-80"></div>
               <div className="absolute bottom-0 right-0 w-4 h-4 bg-red-500 rounded-full opacity-80"></div>

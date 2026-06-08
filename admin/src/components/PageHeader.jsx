@@ -16,7 +16,7 @@ const PageHeader = ({
         <div>
           <h1 className="text-2xl font-extrabold text-[#001e2b]">{title}</h1>
           <nav className="flex items-center gap-2 text-[11px] font-medium text-gray-400 mt-1">
-            <Link to="/" className="hover:text-[#001e2b]">
+            <Link to="/dashboard" className="hover:text-[#001e2b]">
               Home
             </Link>
             {breadcrumbs &&

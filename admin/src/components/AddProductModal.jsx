@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  BiX,
-  BiUpload,
-  BiPlusCircle,
-  BiSave,
-  BiTrash,
-  BiPlus,
-} from "react-icons/bi";
+import { BiX, BiUpload, BiSave, BiTrash, BiPlus } from "react-icons/bi";
 
 const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
   const [formData, setFormData] = useState({
@@ -16,10 +9,11 @@ const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
     color: [],
     price: "",
     oldPrice: "",
-    images: [""], // Changed from image: "" to images: [""]
+    images: [""],
     sale: false,
     description: "",
     countInStock: 10,
+    localFiles: [],
   });
 
   useEffect(() => {
@@ -42,6 +36,7 @@ const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
         sale: editProduct.sale || false,
         description: editProduct.description || editProduct.desc || "",
         countInStock: editProduct.countInStock || 0,
+        localFiles: [],
       });
     } else {
       setFormData({
@@ -55,6 +50,7 @@ const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
         sale: false,
         description: "",
         countInStock: 10,
+        localFiles: [],
       });
     }
   }, [editProduct, isOpen]);
@@ -63,12 +59,13 @@ const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Filter out empty image strings
-    const filteredImages = formData.images.filter((img) => img.trim() !== "");
+    const filteredImages = formData.images.filter(
+      (img) => img && img.trim() !== "",
+    );
     const dataToSubmit = {
       ...formData,
       img: filteredImages,
-      image: filteredImages[0] || "", // Keep 'image' for compatibility
+      image: filteredImages[0] || "",
     };
     const success = await onAdd(dataToSubmit, editProduct?._id);
     if (success) {
@@ -90,6 +87,21 @@ const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
     setFormData((prev) => ({ ...prev, images: newImages }));
   };
 
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setFormData((prev) => ({
+      ...prev,
+      localFiles: [...prev.localFiles, ...files],
+    }));
+  };
+
+  const removeLocalFile = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      localFiles: prev.localFiles.filter((_, i) => i !== index),
+    }));
+  };
+
   const addImageField = () => {
     setFormData((prev) => ({ ...prev, images: [...prev.images, ""] }));
   };
@@ -104,7 +116,12 @@ const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
   const toggleColor = (value) => {
     setFormData((prev) => {
       const exists = prev.color.includes(value);
-      return { ...prev, color: exists ? prev.color.filter((c) => c !== value) : [...prev.color, value] };
+      return {
+        ...prev,
+        color: exists
+          ? prev.color.filter((c) => c !== value)
+          : [...prev.color, value],
+      };
     });
   };
 
@@ -119,6 +136,17 @@ const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
     "pink",
     "purple",
     "orange",
+  ];
+
+  const categories = [
+    "Computers",
+    "Cell Phones",
+    "Entertainment",
+    "Home Teather",
+    "Audio & Headphones",
+    "Car Electronics",
+    "Video Games & Console",
+    "Software & Gift Cards",
   ];
 
   return (
@@ -147,211 +175,169 @@ const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
           onSubmit={handleSubmit}
           className="p-6 sm:p-8 overflow-y-auto no-scrollbar flex-grow"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-            {/* Product Name */}
-            <div className="md:col-span-2">
-              <label className="block text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest mb-2">
-                Product Name
-              </label>
-              <input
-                required
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="e.g. Apple iPad Pro"
-                className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#001e2b]/5 focus:border-[#001e2b] transition-all text-sm font-medium"
-              />
-            </div>
-
-            {/* Category */}
-            <div>
-              <label className="block text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest mb-2">
-                Category
-              </label>
-              <select
-                required
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#001e2b]/5 focus:border-[#001e2b] transition-all text-sm font-medium appearance-none"
-              >
-                <option value="">Select Category</option>
-                <option value="Computers">Computers</option>
-                <option value="Cell Phones">Cell Phones</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Home Teather">Home Teather</option>
-                <option value="Audio & Headphones">Audio & Headphones</option>
-                <option value="Car Electronics">Car Electronics</option>
-                <option value="Video Games & Console">
-                  Video Games & Console
-                </option>
-                <option value="Software & Gift Cards">
-                  Software & Gift Cards
-                </option>
-              </select>
-            </div>
-
-            {/* Brand */}
-            <div>
-              <label className="block text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest mb-2">
-                Brand
-              </label>
-              <input
-                required
-                type="text"
-                name="brand"
-                value={formData.brand}
-                onChange={handleChange}
-                placeholder="e.g. Apple, Samsung..."
-                className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#001e2b]/5 focus:border-[#001e2b] transition-all text-sm font-medium"
-              />
-            </div>
-
-            {/* Colors */}
-            <div className="md:col-span-2">
-              <label className="block text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest mb-2">
-                Colors
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {colorOptions.map((c) => (
-                  <button
-                    key={c}
-                    type="button"
-                    onClick={() => toggleColor(c)}
-                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors ${
-                      formData.color.includes(c)
-                        ? "bg-[#001e2b] text-white border-[#001e2b]"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-[#001e2b]"
-                    }`}
-                  >
-                    {c}
-                  </button>
-                ))}
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  Product Name
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-[#001e2b] transition-all text-sm font-medium"
+                  placeholder="e.g. iPhone 15 Pro"
+                  required
+                />
               </div>
-              <p className="text-[10px] text-gray-400 font-bold mt-2 uppercase tracking-widest">
-                Selected: {formData.color.length ? formData.color.join(", ") : "None"}
-              </p>
-            </div>
 
-            {/* Sale Toggle */}
-            <div className="flex items-center gap-4 h-full pt-2 sm:pt-8">
-              <label className="relative inline-flex items-center cursor-pointer">
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  Category
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-[#001e2b] transition-all text-sm font-medium"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  Brand
+                </label>
+                <input
+                  type="text"
+                  name="brand"
+                  value={formData.brand}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-[#001e2b] transition-all text-sm font-medium"
+                  placeholder="e.g. Apple"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  Price ($)
+                </label>
+                <input
+                  type="number"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-[#001e2b] transition-all text-sm font-medium"
+                  placeholder="999.99"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  Old Price ($)
+                </label>
+                <input
+                  type="number"
+                  name="oldPrice"
+                  value={formData.oldPrice}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-[#001e2b] transition-all text-sm font-medium"
+                  placeholder="1099.99"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                  Stock Count
+                </label>
+                <input
+                  type="number"
+                  name="countInStock"
+                  value={formData.countInStock}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-[#001e2b] transition-all text-sm font-medium"
+                  required
+                />
+              </div>
+
+              <div className="flex items-center gap-3 pt-6">
                 <input
                   type="checkbox"
                   name="sale"
+                  id="sale"
                   checked={formData.sale}
                   onChange={handleChange}
-                  className="sr-only peer"
+                  className="w-5 h-5 rounded-lg text-[#001e2b] focus:ring-[#001e2b] border-gray-300 transition-all cursor-pointer"
                 />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#001e2b]"></div>
-              </label>
-              <span className="text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest">
-                On Sale
-              </span>
+                <label
+                  htmlFor="sale"
+                  className="text-sm font-bold text-[#001e2b] cursor-pointer uppercase tracking-widest text-[11px]"
+                >
+                  On Sale
+                </label>
+              </div>
             </div>
 
-            {/* Price */}
             <div>
-              <label className="block text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest mb-2">
-                Current Price ($)
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-1">
+                Colors
               </label>
-              <input
-                required
-                type="text"
-                name="price"
-                value={formData.price}
-                onChange={handleChange}
-                placeholder="0.00"
-                className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#001e2b]/5 focus:border-[#001e2b] transition-all text-sm font-medium"
-              />
+              <div className="flex flex-wrap gap-2">
+                {colorOptions.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => toggleColor(color)}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                      formData.color.includes(color)
+                        ? "bg-[#001e2b] text-white border-[#001e2b]"
+                        : "bg-white text-gray-500 border-gray-100 hover:border-gray-300"
+                    }`}
+                  >
+                    {color}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Old Price */}
             <div>
-              <label className="block text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest mb-2">
-                Old Price ($)
-              </label>
-              <input
-                type="text"
-                name="oldPrice"
-                value={formData.oldPrice}
-                onChange={handleChange}
-                placeholder="0.00"
-                className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#001e2b]/5 focus:border-[#001e2b] transition-all text-sm font-medium"
-              />
-            </div>
-
-            {/* Stock Count */}
-            <div>
-              <label className="block text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest mb-2">
-                Stock Count
-              </label>
-              <input
-                required
-                type="number"
-                name="countInStock"
-                value={formData.countInStock}
-                onChange={handleChange}
-                placeholder="0"
-                className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#001e2b]/5 focus:border-[#001e2b] transition-all text-sm font-medium"
-              />
-            </div>
-
-            {/* Description */}
-            <div className="md:col-span-2">
-              <label className="block text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest mb-2">
-                Product Description
-              </label>
-              <textarea
-                required
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                rows="4"
-                placeholder="Describe the product details..."
-                className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#001e2b]/5 focus:border-[#001e2b] transition-all text-sm font-medium resize-none"
-              ></textarea>
-            </div>
-
-            {/* Image URLs */}
-            <div className="md:col-span-2">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-[10px] sm:text-[11px] font-bold text-[#001e2b] uppercase tracking-widest">
-                  Product Images
+              <div className="flex items-center justify-between mb-3">
+                <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">
+                  Image URLs
                 </label>
                 <button
                   type="button"
                   onClick={addImageField}
-                  className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-[#001e2b] uppercase tracking-widest bg-gray-50 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition-all border border-gray-100"
+                  className="flex items-center gap-1 text-[10px] font-bold text-blue-500 hover:text-blue-600 transition-colors uppercase tracking-widest"
                 >
-                  <BiPlus size={14} /> Add Another
+                  <BiPlus size={16} /> Add URL
                 </button>
               </div>
               <div className="space-y-3">
                 {formData.images.map((img, index) => (
                   <div key={index} className="flex gap-2">
-                    <div className="relative flex-1">
-                      <input
-                        required
-                        type="text"
-                        value={img}
-                        onChange={(e) =>
-                          handleImageChange(index, e.target.value)
-                        }
-                        placeholder="Paste image URL or path"
-                        className="w-full px-4 sm:px-5 py-3 sm:py-3.5 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#001e2b]/5 focus:border-[#001e2b] transition-all text-sm font-medium pl-10 sm:pl-12"
-                      />
-                      <BiUpload
-                        className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-gray-400"
-                        size={18}
-                      />
-                    </div>
+                    <input
+                      type="text"
+                      value={img}
+                      onChange={(e) => handleImageChange(index, e.target.value)}
+                      className="flex-grow px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-[#001e2b] transition-all text-sm font-medium"
+                      placeholder="https://images.unsplash.com/..."
+                    />
                     {formData.images.length > 1 && (
                       <button
                         type="button"
                         onClick={() => removeImageField(index)}
-                        className="p-3 sm:p-3.5 text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-all"
+                        className="p-3 text-red-400 hover:bg-red-50 rounded-xl transition-all"
                       >
                         <BiTrash size={18} />
                       </button>
@@ -360,29 +346,82 @@ const AddProductModal = ({ isOpen, onClose, onAdd, editProduct }) => {
                 ))}
               </div>
             </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-1">
+                Upload Local Images
+              </label>
+              <div className="space-y-4">
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-200 border-dashed rounded-2xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <BiUpload className="w-8 h-8 mb-3 text-gray-400" />
+                    <p className="text-sm text-gray-500 font-medium">
+                      Click to upload or drag and drop
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    className="hidden"
+                    multiple
+                    accept="image/*"
+                    onChange={handleFileChange}
+                  />
+                </label>
+
+                {formData.localFiles.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {formData.localFiles.map((file, index) => (
+                      <div
+                        key={index}
+                        className="relative group aspect-square bg-gray-100 rounded-xl overflow-hidden"
+                      >
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt="preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeLocalFile(index)}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <BiX size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleChange}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-[#001e2b] transition-all text-sm font-medium min-h-[120px] resize-none"
+                required
+              ></textarea>
+            </div>
           </div>
 
-          <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4 flex-shrink-0 pb-4">
+          <div className="mt-8 flex gap-3 flex-shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="w-full sm:flex-1 px-8 py-3.5 sm:py-4 bg-gray-50 text-gray-400 rounded-xl font-bold text-[10px] sm:text-[11px] uppercase tracking-widest hover:bg-gray-100 transition-all border border-gray-100"
+              className="flex-1 py-4 bg-gray-50 text-gray-500 font-extrabold rounded-2xl hover:bg-gray-100 transition-all text-[12px] tracking-widest"
             >
-              Cancel
+              CANCEL
             </button>
             <button
               type="submit"
-              className="w-full sm:flex-[2] flex items-center justify-center gap-2 bg-[#001e2b] text-white px-8 py-3.5 sm:py-4 rounded-xl font-bold text-[10px] sm:text-[11px] uppercase tracking-widest hover:bg-[#00354d] transition-all shadow-lg shadow-[#001e2b]/20"
+              className="flex-1 py-4 bg-[#001e2b] text-white font-extrabold rounded-2xl hover:bg-[#002b3d] transition-all text-[12px] tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-[#001e2b]/20"
             >
-              {editProduct ? (
-                <>
-                  <BiSave size={18} /> Update Product
-                </>
-              ) : (
-                <>
-                  <BiPlusCircle size={18} /> Add Product
-                </>
-              )}
+              <BiSave size={18} />
+              {editProduct ? "UPDATE" : "SAVE"}
             </button>
           </div>
         </form>
