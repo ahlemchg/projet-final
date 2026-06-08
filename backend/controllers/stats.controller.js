@@ -4,7 +4,8 @@ const Order = require("../models/order.model");
 
 const getStats = async (req, res) => {
   try {
-    const userCount = await User.countDocuments();
+    // Count only non-admin users
+    const userCount = await User.countDocuments({ isAdmin: { $ne: true } });
     const productCount = await Product.countDocuments();
     const orderCount = await Order.countDocuments();
     
