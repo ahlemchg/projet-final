@@ -1,6 +1,13 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api/";
+const getBaseUrl = () => {
+  let url = import.meta.env.VITE_API_URL || "http://localhost:3000/api/";
+  if (!url.endsWith("/")) url += "/";
+  if (!url.endsWith("api/")) url += "api/";
+  return url;
+};
+
+const BASE_URL = getBaseUrl();
 
 // Helper to get token safely from localStorage
 const getToken = () => {
