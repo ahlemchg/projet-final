@@ -15,6 +15,15 @@ import { useCart } from "../context/CartContext.jsx";
 import { useWishlist } from "../context/WishlistContext.jsx";
 import { publicRequest } from "../requestMethods";
 
+const normalizePrice = (value) => {
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const parsed = parseFloat(value.replace("$", "").trim());
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+};
+
 const ShopElectronics = () => {
   const { addToCart } = useCart();
   const { addToWishlist, isInWishlist } = useWishlist();
@@ -158,13 +167,13 @@ const ShopElectronics = () => {
                   <div className="flex items-center justify-center gap-2 mb-3">
                     {product.oldPrice && (
                       <span className="text-gray-400 line-through text-[12px] font-medium">
-                        {product.oldPrice}
+                        ${normalizePrice(product.oldPrice).toFixed(2)}
                       </span>
                     )}
                     <span
                       className={`${product.oldPrice ? "text-[#ef4444]" : "text-[#001e2b]"} font-bold text-[13px]`}
                     >
-                      {product.price}
+                      ${normalizePrice(product.price).toFixed(2)}
                     </span>
                   </div>
 
