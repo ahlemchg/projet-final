@@ -74,7 +74,7 @@ const CategoryShowcase = () => {
             </h2>
 
             <button className="bg-white text-[#10a342] font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition-colors mb-8 text-sm">
-              Starting from £89
+              Starting from $89
             </button>
           </div>
 

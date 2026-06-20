@@ -19,7 +19,7 @@ const Home = () => {
     {
       id: 1,
       title: "Samsung Galaxy Z Flip",
-      price: "Starting From £699",
+      price: "Starting From $699",
       image: "/slid1.jpg",
       bgColor: "bg-[#f8f9fb]",
       btnColor: "bg-[#ffb400]",
@@ -28,7 +28,7 @@ const Home = () => {
     {
       id: 2,
       title: "13-inch MacBook Air Touch ID",
-      price: "Starting From £699",
+      price: "Starting From $699",
       image: "/slide2.jpg",
       bgColor: "bg-[#f8f9fb]",
       btnColor: "bg-[#001e2b]",
